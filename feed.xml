@@ -6,10 +6,141 @@
 </description>
     <link>https://accumulo.apache.org/</link>
     <atom:link href="https://accumulo.apache.org/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Mon, 12 Aug 2019 10:26:39 -0400</pubDate>
-    <lastBuildDate>Mon, 12 Aug 2019 10:26:39 -0400</lastBuildDate>
+    <pubDate>Mon, 12 Aug 2019 15:48:20 -0400</pubDate>
+    <lastBuildDate>Mon, 12 Aug 2019 15:48:20 -0400</lastBuildDate>
     <generator>Jekyll v3.8.6</generator>
     
+    
+      <item>
+        <title>Top 10 Reasons to Upgrade</title>
+        <description>&lt;p&gt;Accumulo 2.0 has been in development for quite some time now and is packed with new features, bug
+fixes, performance improvements and redesigned components.  All of these changes bring challenges
+when upgrading your production cluster so you may be wondering… why should I upgrade?&lt;/p&gt;
+
+&lt;p&gt;My top 10 reasons to upgrade. For all changes see the &lt;a href=&quot;https://accumulo.apache.org/release/accumulo-2.0.0/&quot;&gt;release notes&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;#summaries&quot;&gt;Summaries&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#new-bulk-import&quot;&gt;New Bulk Import&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#simplified-scripts-and-config&quot;&gt;Simplified Scripts and Config&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#new-monitor&quot;&gt;New Monitor&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#new-apis&quot;&gt;New APIs&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#offline-creation&quot;&gt;Offline creation&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#search-documentation&quot;&gt;Search Documentation&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#new-crypto&quot;&gt;On disk encryption&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#zstandard-compression&quot;&gt;ZStandard Compression&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#new-scan-executors&quot;&gt;New Scan Executors&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;summaries&quot;&gt;Summaries&lt;/h3&gt;
+
+&lt;p&gt;This feature allows detailed stats about Tables to be written directly into Accumulo files (R-Files). 
+Summaries can be used to make precise decisions about your data. Once configured, summaries become a 
+part of your Tables, so they won’t impact ingest or query performance of your cluster.&lt;/p&gt;
+
+&lt;p&gt;Here are some example use cases:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;A compaction could automatically run if deletes compose more than 25% of the data&lt;/li&gt;
+  &lt;li&gt;An admin could optimize compactions by configuring specific age off of data&lt;/li&gt;
+  &lt;li&gt;An admin could analyze R-File summaries for better performance tuning of a cluster&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;For more info check out the &lt;a href=&quot;[summaries ](/docs/2.x//development/summaries )&quot;&gt;summary docs for 2.0&lt;/a&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;new-bulk-import&quot;&gt;New Bulk Import&lt;/h3&gt;
+
+&lt;p&gt;Bulk Ingest was completely redone for 2.0.  Previously, Bulk Ingest relied on expensive inspections of 
+R-Files across multiple Tablet Servers. With enough data, an old Bulk Ingest operation could easily 
+hold up simpler Table operations and critical compactions of files.&lt;/p&gt;
+
+&lt;p&gt;The new Bulk Ingest gives the user control over the R-File inspection, allows for offline bulk
+ingesting and provides performance &lt;a href=&quot;https://accumulo.apache.org/release/accumulo-2.0.0/#new-bulk-import-api&quot;&gt;improvements&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;simplified-scripts-and-config&quot;&gt;Simplified Scripts and Config&lt;/h2&gt;
+
+&lt;p&gt;Many improvements were done to the scripts and configuration. See Mike’s description of the &lt;a href=&quot;https://accumulo.apache.org/blog/2016/11/16/simpler-scripts-and-config.html&quot;&gt;improvements.&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;new-monitor&quot;&gt;New Monitor&lt;/h2&gt;
+
+&lt;p&gt;The Monitor has been re-written using REST, Javascript and more modern Web Tech.  It is faster, 
+cleaner and more maintainable than the previous version. Here is a screen shot:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/accumulo-monitor-1.png&quot; width=&quot;50%&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;new-apis&quot;&gt;New APIs&lt;/h2&gt;
+
+&lt;p&gt;Connecting to Accumulo is now easier with a single point of entry for clients. It can now be done with 
+a fluent API, 2 imports and using minimal code:&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;org.apache.accumulo.core.client.Accumulo&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;org.apache.accumulo.core.client.AccumuloClient&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;try&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;AccumuloClient&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;client&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Accumulo&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;newClient&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;
+          &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;to&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;instance&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;zk&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+          &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;as&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;user&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;pass&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;build&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;())&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;c1&quot;&gt;// use the client&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;client&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;tableOperations&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;create&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;newTable&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;As you can see the client is also closable, which gives developers more control over resources.
+See the &lt;a href=&quot;https://static.javadoc.io/org.apache.accumulo/accumulo-core/2.0.0/org/apache/accumulo/core/client/Accumulo.html&quot;&gt;Accumulo entry point javadoc&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Key and Mutation have new fluent APIs, which now allow mixing of &lt;code class=&quot;highlighter-rouge&quot;&gt;String&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;byte[]&lt;/code&gt; types.&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nc&quot;&gt;Key&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;newKey&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Key&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;builder&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;row&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;foo&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;family&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;bar&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;build&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+
+&lt;span class=&quot;nc&quot;&gt;Mutation&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;m&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Mutation&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;row0017&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;m&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;at&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;family&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;001&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;qualifier&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;byte&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;}).&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;put&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;v99&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;m&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;at&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;family&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;002&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;qualifier&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;byte&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;}).&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;delete&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;More examples for &lt;a href=&quot;https://github.com/apache/accumulo/blob/master/core/src/test/java/org/apache/accumulo/core/data/KeyBuilderTest.java&quot;&gt;Key&lt;/a&gt; and &lt;a href=&quot;https://static.javadoc.io/org.apache.accumulo/accumulo-core/2.0.0/org/apache/accumulo/core/data/Mutation.html#at()&quot;&gt;Mutation&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;offline-creation&quot;&gt;Offline creation&lt;/h2&gt;
+
+&lt;p&gt;Tables can now be created with splits offline.  This frees up online resources to perform other critical operations.
+See the &lt;a href=&quot;[#573 ](https://github.com/apache/accumulo/issues/573 )&quot;&gt;GitHub issue&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;search-documentation&quot;&gt;Search Documentation&lt;/h2&gt;
+
+&lt;p&gt;New ability to quickly search documentation on the website. The user manual was completely redone 
+for 2.0. Check it out &lt;a href=&quot;[quickstart ](/docs/2.x//getting-started/quickstart )&quot;&gt;here&lt;/a&gt;. Users can now quickly &lt;a href=&quot;https://accumulo.apache.org/search/&quot;&gt;search&lt;/a&gt; the website across all 2.x documentation.&lt;/p&gt;
+
+&lt;h2 id=&quot;new-crypto&quot;&gt;New Crypto&lt;/h2&gt;
+
+&lt;p&gt;On disk encryption was redone to be more secure and flexible. For an in depth description of how Accumulo 
+does on disk encryption, see the &lt;a href=&quot;[on-disk-encryption ](/docs/2.x//security/on-disk-encryption )&quot;&gt;user manual&lt;/a&gt;.  NOTE: This is currently an experimental feature.
+An experimental feature is considered a work in progress or incomplete and could change.&lt;/p&gt;
+
+&lt;h2 id=&quot;zstandard-compression&quot;&gt;Zstandard compression&lt;/h2&gt;
+
+&lt;p&gt;Support for Zstandard compression was added in 2.0.  It has been measured to perform better than 
+gzip (better compression ratio and speed) and snappy (better compression ratio). Checkout Facebook’s &lt;a href=&quot;https://facebook.github.io/zstd/&quot;&gt;github&lt;/a&gt; for Zstandard and
+the &lt;a href=&quot;[server-properties ](/docs/2.x//configuration/server-properties )&quot;&gt;table.file.compress.type&lt;/a&gt; property for configuring Accumulo.&lt;/p&gt;
+
+&lt;h2 id=&quot;new-scan-executors&quot;&gt;New Scan Executors&lt;/h2&gt;
+
+&lt;p&gt;Users now have more control over scans with the new scan executors.  Tables can be configured to utilize these 
+powerful new mechanisms using just a few properties, giving user control over things like scan prioritization and 
+better cluster resource utilization.&lt;/p&gt;
+
+&lt;p&gt;For example, a cluster has a bunch of long running scans and one really fast scan.  The long running scans will eat up 
+a majority of the server resources causing the one really fast scan to be delayed.  Scan executors allow an admin 
+to configure the cluster in a way that allows the one fast scan to be prioritized and not have to wait.&lt;/p&gt;
+
+&lt;p&gt;Checkout some examples in the &lt;a href=&quot;[scan-executors ](/docs/2.x//administration/scan-executors )&quot;&gt;user guide&lt;/a&gt;.&lt;/p&gt;
+
+</description>
+        <pubDate>Mon, 12 Aug 2019 00:00:00 -0400</pubDate>
+        <link>https://accumulo.apache.org/blog/2019/08/12/why-upgrade.html</link>
+        <guid isPermaLink="true">https://accumulo.apache.org/blog/2019/08/12/why-upgrade.html</guid>
+        
+        
+        <category>blog</category>
+        
+      </item>
     
       <item>
         <title>Apache Accumulo 2.0.0</title>
@@ -697,132 +828,6 @@ successful verification. The integration tests were run against both Hadoop
         <pubDate>Mon, 14 May 2018 00:00:00 -0400</pubDate>
         <link>https://accumulo.apache.org/release/accumulo-1.9.1/</link>
         <guid isPermaLink="true">https://accumulo.apache.org/release/accumulo-1.9.1/</guid>
-        
-        
-        <category>release</category>
-        
-      </item>
-    
-      <item>
-        <title>Apache Accumulo 1.9.0</title>
-        <description>&lt;p&gt;Apache Accumulo 1.9.0 is a minor release on the 1.x branch. This release would
-be considered a maintenance release on 1.8 branch except there are some API
-additions which resulted in a new minor release. Users of 1.8.x versions of
-Accumulo should upgrade to 1.9.0. There will be no more bug fix releases on the
-1.8 branch. This release contains changes for nearly a hundred issues. See
-&lt;a href=&quot;https://github.com/apache/accumulo/issues?q=project%3Aapache%2Faccumulo%2F4&quot;&gt;GitHub&lt;/a&gt; and &lt;a href=&quot;https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12312121&amp;amp;version=12339245&quot;&gt;JIRA&lt;/a&gt; for a list of changes.&lt;/p&gt;
-
-&lt;p&gt;Below are resources for this release:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;/1.9/accumulo_user_manual.html&quot;&gt;User Manual&lt;/a&gt; - In-depth developer and administrator documentation.&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;/1.9/apidocs/&quot;&gt;Javadocs&lt;/a&gt; - Accumulo 1.9.0 API&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;/1.9/examples/&quot;&gt;Examples&lt;/a&gt; - Code with corresponding readme files that give step by
-step instructions for running example code.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;notable-changes&quot;&gt;Notable Changes&lt;/h2&gt;
-
-&lt;h3 id=&quot;deprecated-clientconfiguration-api-using-commons-config&quot;&gt;Deprecated ClientConfiguration API using commons config&lt;/h3&gt;
-
-&lt;p&gt;In &lt;a href=&quot;https://issues.apache.org/jira/browse/ACCUMULO-4611&quot;&gt;ACCUMULO-4611&lt;/a&gt;, public API in ClientConfiguration using commons config
-types was deprecated to better support Hadoop 3 in the future. New methods were
-added to replace these methods which cause this release to be a 1.9.0 release.
-These changes allow removal of commons config from Accumulo’s API in 2.0.0.  If
-using ClientConfiguration, then switching from existing constructors to the new
-static methods &lt;a href=&quot;/1.9/apidocs/org/apache/accumulo/core/client/ClientConfiguration.html#create--&quot;&gt;create()&lt;/a&gt;, &lt;a href=&quot;/1.9/apidocs/org/apache/accumulo/core/client/ClientConfiguration.html#fromFile-java.io.File-&quot;&gt;fromFile()&lt;/a&gt;, or &lt;a href=&quot;/1.9/apidocs/org/apache/accumulo/core/client/ClientConfiguration.html#fromMap-java.util.Map-&quot;&gt;fromMap()&lt;/a&gt; will ensure your code
-works in 2.0.0.&lt;/p&gt;
-
-&lt;h3 id=&quot;performance-improvements&quot;&gt;Performance Improvements&lt;/h3&gt;
-
-&lt;p&gt;Accumulo was profiled while running lots of concurrent small scans. During this
-exercise these performance bugs were found and fixed: &lt;a href=&quot;https://github.com/apache/accumulo/issues/379&quot;&gt;#379&lt;/a&gt;, &lt;a href=&quot;https://issues.apache.org/jira/browse/ACCUMULO-4778&quot;&gt;ACCUMULO-4778&lt;/a&gt;,
-&lt;a href=&quot;https://issues.apache.org/jira/browse/ACCUMULO-4779&quot;&gt;ACCUMULO-4779&lt;/a&gt;, &lt;a href=&quot;https://issues.apache.org/jira/browse/ACCUMULO-4781&quot;&gt;ACCUMULO-4781&lt;/a&gt;, &lt;a href=&quot;https://issues.apache.org/jira/browse/ACCUMULO-4782&quot;&gt;ACCUMULO-4782&lt;/a&gt;, &lt;a href=&quot;https://issues.apache.org/jira/browse/ACCUMULO-4788&quot;&gt;ACCUMULO-4788&lt;/a&gt;,
-&lt;a href=&quot;https://issues.apache.org/jira/browse/ACCUMULO-4789&quot;&gt;ACCUMULO-4789&lt;/a&gt;, &lt;a href=&quot;https://issues.apache.org/jira/browse/ACCUMULO-4790&quot;&gt;ACCUMULO-4790&lt;/a&gt;, &lt;a href=&quot;https://issues.apache.org/jira/browse/ACCUMULO-4797&quot;&gt;ACCUMULO-4797&lt;/a&gt;, &lt;a href=&quot;https://issues.apache.org/jira/browse/ACCUMULO-4798&quot;&gt;ACCUMULO-4798&lt;/a&gt;,
-&lt;a href=&quot;https://issues.apache.org/jira/browse/ACCUMULO-4799&quot;&gt;ACCUMULO-4799&lt;/a&gt;, &lt;a href=&quot;https://issues.apache.org/jira/browse/ACCUMULO-4800&quot;&gt;ACCUMULO-4800&lt;/a&gt;, &lt;a href=&quot;https://issues.apache.org/jira/browse/ACCUMULO-4801&quot;&gt;ACCUMULO-4801&lt;/a&gt;, &lt;a href=&quot;https://issues.apache.org/jira/browse/ACCUMULO-4805&quot;&gt;ACCUMULO-4805&lt;/a&gt;, and
-&lt;a href=&quot;https://issues.apache.org/jira/browse/ACCUMULO-4809&quot;&gt;ACCUMULO-4809&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;Below are other significant performance improvements in 1.9.0:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;https://issues.apache.org/jira/browse/ACCUMULO-4636&quot;&gt;ACCUMULO-4636&lt;/a&gt; - System iterator performance improvements&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://issues.apache.org/jira/browse/ACCUMULO-4657&quot;&gt;ACCUMULO-4657&lt;/a&gt; - Avoided expensive BulkImport logging&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://issues.apache.org/jira/browse/ACCUMULO-4667&quot;&gt;ACCUMULO-4667&lt;/a&gt; - Avoided unnecessary recomputation in LocalityGroupIterator&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/apache/accumulo/issues/410&quot;&gt;#410&lt;/a&gt; - Fixed inefficient auths check&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;fixed-upgrade-process-to-set-version-on-all-volumes&quot;&gt;Fixed upgrade process to set version on all volumes&lt;/h3&gt;
-
-&lt;p&gt;During upgrades, only one volume in a multiple HDFS volume was updated with the
-correct version. This would cause all tablet servers to complain and ultimately
-fail. &lt;a href=&quot;https://issues.apache.org/jira/browse/ACCUMULO-4686&quot;&gt;ACCUMULO-4686&lt;/a&gt; fixes this by setting the version on all volumes.&lt;/p&gt;
-
-&lt;h3 id=&quot;updated-accumulo-to-work-with-new-releases-of-guava&quot;&gt;Updated Accumulo to work with new releases of Guava&lt;/h3&gt;
-
-&lt;p&gt;In &lt;a href=&quot;https://issues.apache.org/jira/browse/ACCUMULO-4702&quot;&gt;ACCUMULO-4702&lt;/a&gt;, dependencies on Beta-annotated Guava classes and methods
-were removed. While Accumulo still includes Guava 14 in its tarball, it will
-work with newer versions of Guava in client code. It has been tested to work
-with Guava 23.&lt;/p&gt;
-
-&lt;h3 id=&quot;updated-rfile-to-prevent-very-large-blocks&quot;&gt;Updated RFile to prevent very large blocks&lt;/h3&gt;
-
-&lt;p&gt;RFiles now use windowed statistics (&lt;a href=&quot;https://issues.apache.org/jira/browse/ACCUMULO-4669&quot;&gt;ACCUMULO-4669&lt;/a&gt;) to prevent very large
-blocks. In 1.8.0 a bug was introduced that caused RFile data block sizes to
-grow very large in the case where key sizes slowly increased.  This could lead
-to degraded query performance or out of memory exceptions on tablet servers.&lt;/p&gt;
-
-&lt;h3 id=&quot;allow-iterators-to-yield&quot;&gt;Allow iterators to yield&lt;/h3&gt;
-
-&lt;p&gt;In &lt;a href=&quot;https://issues.apache.org/jira/browse/ACCUMULO-4643&quot;&gt;ACCUMULO-4643&lt;/a&gt; added capability for an iterator to yield control in a seek
-or next call prior to finding a key/value.  Yielding avoids starvation of other
-scans when iterators take a long time to return a key/value. To use this
-feature, implement YieldingKeyValueIterator.&lt;/p&gt;
-
-&lt;h3 id=&quot;disallow-dots--in-iterator-names&quot;&gt;Disallow dots (.) in iterator names&lt;/h3&gt;
-
-&lt;p&gt;In &lt;a href=&quot;https://issues.apache.org/jira/browse/ACCUMULO-3389&quot;&gt;ACCUMULO-3389&lt;/a&gt;, we added a check to prevent iterators from being created by
-our API which contained the dot (.) character. In some cases, the presence of a
-dot character could be parsed incorrectly as an iterator option rather than
-part of its name. This caused unexpected problems. Iterator names are no longer
-allowed to contain dots. Any user code doing that will break with an
-IllegalArgumentException.&lt;/p&gt;
-
-&lt;h3 id=&quot;various-security-related-improvements&quot;&gt;Various security-related improvements&lt;/h3&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/apache/accumulo/issues/417&quot;&gt;#417&lt;/a&gt; - Make TLSv1.2 the default for TLS RPC connections&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://issues.apache.org/jira/browse/ACCUMULO-2806&quot;&gt;ACCUMULO-2806&lt;/a&gt; - &lt;code class=&quot;highlighter-rouge&quot;&gt;accumulo init&lt;/code&gt; sets the correct permissions on /accumulo
-to 700&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://issues.apache.org/jira/browse/ACCUMULO-4587&quot;&gt;ACCUMULO-4587&lt;/a&gt; - use a newer version of JQuery (3.2.1)&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://issues.apache.org/jira/browse/ACCUMULO-4660&quot;&gt;ACCUMULO-4660&lt;/a&gt; - sanitized incoming values from HTTP parameters&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://issues.apache.org/jira/browse/ACCUMULO-4665&quot;&gt;ACCUMULO-4665&lt;/a&gt; and &lt;a href=&quot;https://issues.apache.org/jira/browse/ACCUMULO-4666&quot;&gt;ACCUMULO-4666&lt;/a&gt; - Kerberos improvements&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://issues.apache.org/jira/browse/ACCUMULO-4676&quot;&gt;ACCUMULO-4676&lt;/a&gt; - set the HTTPOnly flags for JSESSSIONID in monitor&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;other-notable-changes&quot;&gt;Other Notable Changes&lt;/h2&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/apache/accumulo/issues/403&quot;&gt;#403&lt;/a&gt; - Enabled more metrics reporting&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://issues.apache.org/jira/browse/ACCUMULO-4528&quot;&gt;ACCUMULO-4528&lt;/a&gt; - Add import/export table info to docs&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://issues.apache.org/jira/browse/ACCUMULO-4655&quot;&gt;ACCUMULO-4655&lt;/a&gt; - Added a Response Time column to the monitor&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://issues.apache.org/jira/browse/ACCUMULO-4693&quot;&gt;ACCUMULO-4693&lt;/a&gt; - Add process name to metrics&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://issues.apache.org/jira/browse/ACCUMULO-4721&quot;&gt;ACCUMULO-4721&lt;/a&gt; - Document rfile-info in the user manual&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;upgrading&quot;&gt;Upgrading&lt;/h2&gt;
-
-&lt;p&gt;View the &lt;a href=&quot;/docs/2.x/administration/upgrading&quot;&gt;Upgrading Accumulo documentation&lt;/a&gt; for guidance.&lt;/p&gt;
-
-&lt;h2 id=&quot;testing&quot;&gt;Testing&lt;/h2&gt;
-
-&lt;p&gt;Continuous ingest, random walk, and all integration test were run against RC1.
-Randomwalk was run for 2 days with 7 walkers.  Continuous ingest was run with 9
-nodes for 24 hours followed by a successful verification.&lt;/p&gt;
-
-</description>
-        <pubDate>Mon, 23 Apr 2018 00:00:00 -0400</pubDate>
-        <link>https://accumulo.apache.org/release/accumulo-1.9.0/</link>
-        <guid isPermaLink="true">https://accumulo.apache.org/release/accumulo-1.9.0/</guid>
         
         
         <category>release</category>
