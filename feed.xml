@@ -6,10 +6,151 @@
 </description>
     <link>https://accumulo.apache.org/</link>
     <atom:link href="https://accumulo.apache.org/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Tue, 13 Aug 2019 09:44:36 -0400</pubDate>
-    <lastBuildDate>Tue, 13 Aug 2019 09:44:36 -0400</lastBuildDate>
+    <pubDate>Wed, 11 Sep 2019 09:10:18 -0400</pubDate>
+    <lastBuildDate>Wed, 11 Sep 2019 09:10:18 -0400</lastBuildDate>
     <generator>Jekyll v3.8.6</generator>
     
+    
+      <item>
+        <title>Using S3 as a data store for Accumulo</title>
+        <description>&lt;p&gt;Accumulo can store its files in S3, however S3 does not support the needs of
+write ahead logs and the Accumulo metadata table. One way to solve this problem
+is to store the metadata table and write ahead logs in HDFS and everything else
+in S3.  This post shows how to do that using Accumulo 2.0 and Hadoop 3.2.0.
+Running on S3 requires a new feature in Accumulo 2.0, that volume choosers are
+aware of write ahead logs.&lt;/p&gt;
+
+&lt;h2 id=&quot;hadoop-setup&quot;&gt;Hadoop setup&lt;/h2&gt;
+
+&lt;p&gt;At least the following settings should be added to Hadoop’s &lt;code class=&quot;highlighter-rouge&quot;&gt;core-site.xml&lt;/code&gt; file on each node in the cluster.&lt;/p&gt;
+
+&lt;div class=&quot;language-xml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;property&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;name&amp;gt;&lt;/span&gt;fs.s3a.access.key&lt;span class=&quot;nt&quot;&gt;&amp;lt;/name&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;value&amp;gt;&lt;/span&gt;KEY&lt;span class=&quot;nt&quot;&gt;&amp;lt;/value&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/property&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;property&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;name&amp;gt;&lt;/span&gt;fs.s3a.secret.key&lt;span class=&quot;nt&quot;&gt;&amp;lt;/name&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;value&amp;gt;&lt;/span&gt;SECRET&lt;span class=&quot;nt&quot;&gt;&amp;lt;/value&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/property&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- without this setting Accumulo tservers would have problems when trying to open lots of files --&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;property&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;name&amp;gt;&lt;/span&gt;fs.s3a.connection.maximum&lt;span class=&quot;nt&quot;&gt;&amp;lt;/name&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;value&amp;gt;&lt;/span&gt;128&lt;span class=&quot;nt&quot;&gt;&amp;lt;/value&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/property&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;See &lt;a href=&quot;https://hadoop.apache.org/docs/current/hadoop-aws/tools/hadoop-aws/index.html#S3A&quot;&gt;S3A docs&lt;/a&gt;
+for more S3A settings.  To get hadoop command to work with s3 set &lt;code class=&quot;highlighter-rouge&quot;&gt;export
+HADOOP_OPTIONAL_TOOLS=&quot;hadoop-aws&quot;&lt;/code&gt; in &lt;code class=&quot;highlighter-rouge&quot;&gt;hadoop-env.sh&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;When trying to use Accumulo with Hadoop’s AWS jar &lt;a href=&quot;https://issues.apache.org/jira/browse/HADOOP-16080&quot;&gt;HADOOP-16080&lt;/a&gt; was
+encountered.  The following instructions build a relocated hadoop-aws jar as a
+work around.  After building the jar copy it to all nodes in the cluster.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;mkdir&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-p&lt;/span&gt; /tmp/haws-reloc
+&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; /tmp/haws-reloc
+&lt;span class=&quot;c&quot;&gt;# get the Maven pom file that builds a relocated jar&lt;/span&gt;
+wget https://gist.githubusercontent.com/keith-turner/f6dcbd33342732e42695d66509239983/raw/714cb801eb49084e0ceef5c6eb4027334fd51f87/pom.xml
+mvn package &lt;span class=&quot;nt&quot;&gt;-Dhadoop&lt;/span&gt;.version&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&amp;lt;your hadoop version&amp;gt;
+&lt;span class=&quot;c&quot;&gt;# the new jar will be in target&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;ls &lt;/span&gt;target/
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;accumulo-setup&quot;&gt;Accumulo setup&lt;/h2&gt;
+
+&lt;p&gt;For each node in the cluster, modify &lt;code class=&quot;highlighter-rouge&quot;&gt;accumulo-env.sh&lt;/code&gt; to add S3 jars to the
+classpath.  Your versions may differ depending on your Hadoop version,
+following versions were included with Hadoop 3.2.0.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;CLASSPATH&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;conf&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;lib&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;/*:&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;HADOOP_CONF_DIR&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;ZOOKEEPER_HOME&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;/*:&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;HADOOP_HOME&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;/share/hadoop/client/*&quot;&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;CLASSPATH&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;CLASSPATH&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;:/somedir/hadoop-aws-relocated.3.2.0.jar&quot;&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;CLASSPATH&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;CLASSPATH&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;HADOOP_HOME&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;/share/hadoop/tools/lib/aws-java-sdk-bundle-1.11.375.jar&quot;&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# The following are dependencies needed by by the previous jars and are subject to change&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;CLASSPATH&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;CLASSPATH&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;HADOOP_HOME&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;/share/hadoop/common/lib/jaxb-api-2.2.11.jar&quot;&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;CLASSPATH&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;CLASSPATH&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;HADOOP_HOME&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;/share/hadoop/common/lib/jaxb-impl-2.2.3-1.jar&quot;&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;CLASSPATH&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;CLASSPATH&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;HADOOP_HOME&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;/share/hadoop/common/lib/commons-lang3-3.7jar&quot;&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;CLASSPATH
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Set the following in &lt;code class=&quot;highlighter-rouge&quot;&gt;accumulo.properties&lt;/code&gt; and then run &lt;code class=&quot;highlighter-rouge&quot;&gt;accumulo init&lt;/code&gt;, but don’t start Accumulo.&lt;/p&gt;
+
+&lt;div class=&quot;language-ini highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;py&quot;&gt;instance.volumes&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;hdfs://&amp;lt;name node&amp;gt;/accumulo&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;After running Accumulo init we need to configure storing write ahead logs in
+HDFS.  Set the following in &lt;code class=&quot;highlighter-rouge&quot;&gt;accumulo.properties&lt;/code&gt;.&lt;/p&gt;
+
+&lt;div class=&quot;language-ini highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;py&quot;&gt;instance.volumes&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;hdfs://&amp;lt;name node&amp;gt;/accumulo,s3a://&amp;lt;bucket&amp;gt;/accumulo&lt;/span&gt;
+&lt;span class=&quot;py&quot;&gt;general.volume.chooser&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;org.apache.accumulo.server.fs.PreferredVolumeChooser&lt;/span&gt;
+&lt;span class=&quot;py&quot;&gt;general.custom.volume.preferred.default&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;s3a://&amp;lt;bucket&amp;gt;/accumulo&lt;/span&gt;
+&lt;span class=&quot;py&quot;&gt;general.custom.volume.preferred.logger&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;hdfs://&amp;lt;namenode&amp;gt;/accumulo&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Run &lt;code class=&quot;highlighter-rouge&quot;&gt;accumulo init --add-volumes&lt;/code&gt; to initialize the S3 volume.  Doing this
+in two steps avoids putting any Accumulo metadata files in S3 during init.
+Copy &lt;code class=&quot;highlighter-rouge&quot;&gt;accumulo.properties&lt;/code&gt; to all nodes and start Accumulo.&lt;/p&gt;
+
+&lt;p&gt;Individual tables can be configured to store their files in HDFS by setting the
+table property &lt;code class=&quot;highlighter-rouge&quot;&gt;table.custom.volume.preferred&lt;/code&gt;.  This should be set for the
+metadata table in case it splits using the following Accumulo shell command.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;config -t accumulo.metadata -s table.custom.volume.preferred=hdfs://&amp;lt;namenode&amp;gt;/accumulo
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;accumulo-example&quot;&gt;Accumulo example&lt;/h2&gt;
+
+&lt;p&gt;The following Accumulo shell session shows an example of writing data to S3 and
+reading it back.  It also shows scanning the metadata table to verify the data
+is stored in S3.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;root@muchos&amp;gt; createtable s3test
+root@muchos s3test&amp;gt; insert r1 f1 q1 v1
+root@muchos s3test&amp;gt; insert r1 f1 q2 v2
+root@muchos s3test&amp;gt; flush -w
+2019-09-10 19:39:04,695 [shell.Shell] INFO : Flush of table s3test  completed.
+root@muchos s3test&amp;gt; scan 
+r1 f1:q1 []    v1
+r1 f1:q2 []    v2
+root@muchos s3test&amp;gt; scan -t accumulo.metadata -c file
+2&amp;lt; file:s3a://&amp;lt;bucket&amp;gt;/accumulo/tables/2/default_tablet/F000007b.rf []    234,2
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;These instructions were only tested a few times and may not result in a stable
+system. I have &lt;a href=&quot;https://gist.github.com/keith-turner/149f35f218d10e13227461714012d7bf&quot;&gt;run&lt;/a&gt; a 24hr test with Accumulo and S3.&lt;/p&gt;
+
+&lt;h2 id=&quot;is-s3guard-needed&quot;&gt;Is S3Guard needed?&lt;/h2&gt;
+
+&lt;p&gt;I am not completely certain about this, but I don’t think S3Guard is needed for
+regular Accumulo tables.  There are two reasons I think this is so.  First each
+Accumulo user tablet stores its list of files in the metadata table using
+absolute URIs.  This allows a tablet to have files on multiple DFS instances.
+Therefore Accumulo never does a DFS list operation to get a tablets files, it
+always uses whats in the metadata table.  Second, Accumulo gives each file a
+unique name using a counter stored in Zookeeper and file names are never
+reused.&lt;/p&gt;
+
+&lt;p&gt;Things are sligthly different for Accumulo’s metadata.  User tablets store
+their file list in the metadata table.  Metadata tablets store their file list
+in the root table.  The root table stores its file list in DFS.  Therefore it
+would be dangerous to place the root tablet in S3 w/o using S3Guard.  That is
+why these instructions place Accumulo metadata in HDFS. &lt;strong&gt;Hopefully&lt;/strong&gt; this
+configuration allows the system to be consistent w/o using S3Guard.&lt;/p&gt;
+
+&lt;p&gt;When Accumulo 2.1.0 is released with the changes made by &lt;a href=&quot;https://github.com/apache/accumulo/issues/1313&quot;&gt;#1313 &lt;/a&gt; for issue
+&lt;a href=&quot;https://github.com/apache/accumulo/issues/936&quot;&gt;#936 &lt;/a&gt;, it may be possible to store the metadata table in S3 w/o
+S3Gaurd.  If this is the case then only the write ahead logs would need to be
+stored in HDFS.&lt;/p&gt;
+
+</description>
+        <pubDate>Tue, 10 Sep 2019 00:00:00 -0400</pubDate>
+        <link>https://accumulo.apache.org/blog/2019/09/10/accumulo-S3-notes.html</link>
+        <guid isPermaLink="true">https://accumulo.apache.org/blog/2019/09/10/accumulo-S3-notes.html</guid>
+        
+        
+        <category>blog</category>
+        
+      </item>
     
       <item>
         <title>Top 10 Reasons to Upgrade</title>
@@ -766,71 +907,6 @@ flushed, compacted, scanned, and deleted the table.&lt;/li&gt;
         
         
         <category>blog</category>
-        
-      </item>
-    
-      <item>
-        <title>Apache Accumulo 1.9.1</title>
-        <description>&lt;p&gt;Apache Accumulo 1.9.1 contains bug fixes for a critical data loss bug. Users of
-1.8.0, 1.8.1, or 1.9.0 are encouraged to upgrade immediately.&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;/1.9/accumulo_user_manual.html&quot;&gt;User Manual&lt;/a&gt; - In-depth developer and administrator documentation&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;/1.9/apidocs/&quot;&gt;Javadocs&lt;/a&gt; - Accumulo 1.9 API&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;/1.9/examples/&quot;&gt;Examples&lt;/a&gt; - Code with corresponding readme files that give step by
-step instructions for running example code&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;notable-changes&quot;&gt;Notable Changes&lt;/h2&gt;
-
-&lt;h3 id=&quot;fixes-for-critical-wal-data-loss-bugs-affects-versions-180-190&quot;&gt;Fixes for Critical WAL Data Loss Bugs (affects versions 1.8.0-1.9.0)&lt;/h3&gt;
-
-&lt;p&gt;Accumulo 1.9.1 contains multiple bug fixes for write ahead log recovery. Write
-ahead log recovery is the process of restoring data that was in memory when a
-tablet server died. These bugs could lead to data loss and are present in
-1.8.0, 1.8.1, and 1.9.0. Because the bugs can negatively impact Accumulo’s
-metadata table, &lt;strong&gt;even users that mainly use bulk import may be affected&lt;/strong&gt;. It
-is &lt;strong&gt;strongly&lt;/strong&gt; recommended that anyone using 1.8.0 or greater upgrade
-immediately. For more information see issues &lt;a href=&quot;https://github.com/apache/accumulo/issues/441&quot;&gt;#441&lt;/a&gt; and &lt;a href=&quot;https://github.com/apache/accumulo/issues/449&quot;&gt;#449&lt;/a&gt;. These issues
-were fixed in pull request &lt;a href=&quot;https://github.com/apache/accumulo/issues/443&quot;&gt;#443&lt;/a&gt; and &lt;a href=&quot;https://github.com/apache/accumulo/issues/458&quot;&gt;#458&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;The only users who would not be affected by these bugs would be users already
-running Accumulo without the recommended write-ahead logs enabled at all
-(durability: none), including for the metadata tables. Such users are already
-risking data loss when a server fails, but are not subject to any additional
-risk from these bugs, which occur during automated recovery from such failures.&lt;/p&gt;
-
-&lt;h2 id=&quot;some-wal-recovery-files-were-not-being-properly-cleaned-up&quot;&gt;Some WAL recovery files were not being properly cleaned up&lt;/h2&gt;
-
-&lt;p&gt;A less serious bug than the above critical bugs was discovered and fixed,
-pertaining to write-ahead log recovery. This bug involved recovery files not
-being removed properly when no longer required and was fixed in &lt;a href=&quot;https://github.com/apache/accumulo/issues/432&quot;&gt;#432&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h2 id=&quot;other-changes&quot;&gt;Other Changes&lt;/h2&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/apache/accumulo/issues?q=project%3Aapache%2Faccumulo%2F5&quot;&gt;GitHub&lt;/a&gt; - List of issues tracked on GitHub corresponding to this release&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;/release/accumulo-1.9.0/&quot;&gt;1.9.0 release notes&lt;/a&gt; - Release notes showing changes in the previous release, 1.9.0&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;upgrading&quot;&gt;Upgrading&lt;/h2&gt;
-
-&lt;p&gt;View the &lt;a href=&quot;/docs/2.x/administration/upgrading&quot;&gt;Upgrading Accumulo documentation&lt;/a&gt; for guidance.&lt;/p&gt;
-
-&lt;h2 id=&quot;testing&quot;&gt;Testing&lt;/h2&gt;
-
-&lt;p&gt;Continuous ingest with agitation and all integration test were run against this
-version. Continuous ingest was run with 9 nodes for 24 hours followed by a
-successful verification. The integration tests were run against both Hadoop
-2.6.4 and Hadoop 3.0.0.&lt;/p&gt;
-
-</description>
-        <pubDate>Mon, 14 May 2018 00:00:00 -0400</pubDate>
-        <link>https://accumulo.apache.org/release/accumulo-1.9.1/</link>
-        <guid isPermaLink="true">https://accumulo.apache.org/release/accumulo-1.9.1/</guid>
-        
-        
-        <category>release</category>
         
       </item>
     
