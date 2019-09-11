@@ -6,8 +6,8 @@
 </description>
     <link>https://accumulo.apache.org/</link>
     <atom:link href="https://accumulo.apache.org/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Wed, 11 Sep 2019 09:10:18 -0400</pubDate>
-    <lastBuildDate>Wed, 11 Sep 2019 09:10:18 -0400</lastBuildDate>
+    <pubDate>Wed, 11 Sep 2019 14:28:48 -0400</pubDate>
+    <lastBuildDate>Wed, 11 Sep 2019 14:28:48 -0400</lastBuildDate>
     <generator>Jekyll v3.8.6</generator>
     
     
@@ -187,7 +187,7 @@ part of your Tables, so they won’t impact ingest or query performance of your 
   &lt;li&gt;An admin could analyze R-File summaries for better performance tuning of a cluster&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;For more info check out the &lt;a href=&quot;[summaries ](/docs/2.x//development/summaries )&quot;&gt;summary docs for 2.0&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;For more info check out the &lt;a href=&quot;/docs/2.x//development/summaries&quot;&gt;summary docs for 2.0&lt;/a&gt;&lt;/p&gt;
 
 &lt;h3 id=&quot;new-bulk-import&quot;&gt;New Bulk Import&lt;/h3&gt;
 
@@ -242,24 +242,24 @@ See the &lt;a href=&quot;https://static.javadoc.io/org.apache.accumulo/accumulo-
 &lt;h2 id=&quot;offline-creation&quot;&gt;Offline creation&lt;/h2&gt;
 
 &lt;p&gt;Tables can now be created with splits offline.  This frees up online resources to perform other critical operations.
-See the &lt;a href=&quot;[#573 ](https://github.com/apache/accumulo/issues/573 )&quot;&gt;GitHub issue&lt;/a&gt;.&lt;/p&gt;
+See &lt;a href=&quot;https://github.com/apache/accumulo/issues/573&quot;&gt;#573 &lt;/a&gt;.&lt;/p&gt;
 
 &lt;h2 id=&quot;search-documentation&quot;&gt;Search Documentation&lt;/h2&gt;
 
 &lt;p&gt;New ability to quickly search documentation on the website. The user manual was completely redone 
-for 2.0. Check it out &lt;a href=&quot;[quickstart ](/docs/2.x//getting-started/quickstart )&quot;&gt;here&lt;/a&gt;. Users can now quickly &lt;a href=&quot;https://accumulo.apache.org/search/&quot;&gt;search&lt;/a&gt; the website across all 2.x documentation.&lt;/p&gt;
+for 2.0. Check it out &lt;a href=&quot;/docs/2.x//getting-started/quickstart&quot;&gt;here&lt;/a&gt;. Users can now quickly &lt;a href=&quot;https://accumulo.apache.org/search/&quot;&gt;search&lt;/a&gt; the website across all 2.x documentation.&lt;/p&gt;
 
 &lt;h2 id=&quot;new-crypto&quot;&gt;New Crypto&lt;/h2&gt;
 
 &lt;p&gt;On disk encryption was redone to be more secure and flexible. For an in depth description of how Accumulo 
-does on disk encryption, see the &lt;a href=&quot;[on-disk-encryption ](/docs/2.x//security/on-disk-encryption )&quot;&gt;user manual&lt;/a&gt;.  NOTE: This is currently an experimental feature.
+does on disk encryption, see the &lt;a href=&quot;/docs/2.x//security/on-disk-encryption&quot;&gt;user manual&lt;/a&gt;.  NOTE: This is currently an experimental feature.
 An experimental feature is considered a work in progress or incomplete and could change.&lt;/p&gt;
 
 &lt;h2 id=&quot;zstandard-compression&quot;&gt;Zstandard compression&lt;/h2&gt;
 
 &lt;p&gt;Support for Zstandard compression was added in 2.0.  It has been measured to perform better than 
 gzip (better compression ratio and speed) and snappy (better compression ratio). Checkout Facebook’s &lt;a href=&quot;https://facebook.github.io/zstd/&quot;&gt;github&lt;/a&gt; for Zstandard and
-the &lt;a href=&quot;[server-properties ](/docs/2.x//configuration/server-properties )&quot;&gt;table.file.compress.type&lt;/a&gt; property for configuring Accumulo.&lt;/p&gt;
+the &lt;a href=&quot;/docs/2.x//configuration/server-properties&quot;&gt;table.file.compress.type&lt;/a&gt; property for configuring Accumulo.&lt;/p&gt;
 
 &lt;h2 id=&quot;new-scan-executors&quot;&gt;New Scan Executors&lt;/h2&gt;
 
@@ -271,7 +271,7 @@ better cluster resource utilization.&lt;/p&gt;
 a majority of the server resources causing the one really fast scan to be delayed.  Scan executors allow an admin 
 to configure the cluster in a way that allows the one fast scan to be prioritized and not have to wait.&lt;/p&gt;
 
-&lt;p&gt;Checkout some examples in the &lt;a href=&quot;[scan-executors ](/docs/2.x//administration/scan-executors )&quot;&gt;user guide&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Checkout some examples in the &lt;a href=&quot;/docs/2.x//administration/scan-executors&quot;&gt;user guide&lt;/a&gt;.&lt;/p&gt;
 
 </description>
         <pubDate>Mon, 12 Aug 2019 00:00:00 -0400</pubDate>

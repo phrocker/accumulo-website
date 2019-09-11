@@ -178,7 +178,7 @@ part of your Tables, so they won’t impact ingest or query performance of your 
   <li>An admin could analyze R-File summaries for better performance tuning of a cluster</li>
 </ul>
 
-<p>For more info check out the <a href="[summaries ](/docs/2.x//development/summaries )">summary docs for 2.0</a></p>
+<p>For more info check out the <a href="/docs/2.x//development/summaries">summary docs for 2.0</a></p>
 
 <h3 id="new-bulk-import">New Bulk Import</h3>
 
@@ -233,24 +233,24 @@ See the <a href="https://static.javadoc.io/org.apache.accumulo/accumulo-core/2.0
 <h2 id="offline-creation">Offline creation</h2>
 
 <p>Tables can now be created with splits offline.  This frees up online resources to perform other critical operations.
-See the <a href="[#573 ](https://github.com/apache/accumulo/issues/573 )">GitHub issue</a>.</p>
+See <a href="https://github.com/apache/accumulo/issues/573">#573 </a>.</p>
 
 <h2 id="search-documentation">Search Documentation</h2>
 
 <p>New ability to quickly search documentation on the website. The user manual was completely redone 
-for 2.0. Check it out <a href="[quickstart ](/docs/2.x//getting-started/quickstart )">here</a>. Users can now quickly <a href="https://accumulo.apache.org/search/">search</a> the website across all 2.x documentation.</p>
+for 2.0. Check it out <a href="/docs/2.x//getting-started/quickstart">here</a>. Users can now quickly <a href="https://accumulo.apache.org/search/">search</a> the website across all 2.x documentation.</p>
 
 <h2 id="new-crypto">New Crypto</h2>
 
 <p>On disk encryption was redone to be more secure and flexible. For an in depth description of how Accumulo 
-does on disk encryption, see the <a href="[on-disk-encryption ](/docs/2.x//security/on-disk-encryption )">user manual</a>.  NOTE: This is currently an experimental feature.
+does on disk encryption, see the <a href="/docs/2.x//security/on-disk-encryption">user manual</a>.  NOTE: This is currently an experimental feature.
 An experimental feature is considered a work in progress or incomplete and could change.</p>
 
 <h2 id="zstandard-compression">Zstandard compression</h2>
 
 <p>Support for Zstandard compression was added in 2.0.  It has been measured to perform better than 
 gzip (better compression ratio and speed) and snappy (better compression ratio). Checkout Facebook’s <a href="https://facebook.github.io/zstd/">github</a> for Zstandard and
-the <a href="[server-properties ](/docs/2.x//configuration/server-properties )">table.file.compress.type</a> property for configuring Accumulo.</p>
+the <a href="/docs/2.x//configuration/server-properties">table.file.compress.type</a> property for configuring Accumulo.</p>
 
 <h2 id="new-scan-executors">New Scan Executors</h2>
 
@@ -262,7 +262,7 @@ better cluster resource utilization.</p>
 a majority of the server resources causing the one really fast scan to be delayed.  Scan executors allow an admin 
 to configure the cluster in a way that allows the one fast scan to be prioritized and not have to wait.</p>
 
-<p>Checkout some examples in the <a href="[scan-executors ](/docs/2.x//administration/scan-executors )">user guide</a>.</p>
+<p>Checkout some examples in the <a href="/docs/2.x//administration/scan-executors">user guide</a>.</p>
 
 
 
