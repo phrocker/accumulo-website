@@ -230,10 +230,20 @@ See the <a href="https://static.javadoc.io/org.apache.accumulo/accumulo-core/2.0
 
 <p>More examples for <a href="https://github.com/apache/accumulo/blob/master/core/src/test/java/org/apache/accumulo/core/data/KeyBuilderTest.java">Key</a> and <a href="https://static.javadoc.io/org.apache.accumulo/accumulo-core/2.0.0/org/apache/accumulo/core/data/Mutation.html#at()">Mutation</a>.</p>
 
-<h2 id="offline-creation">Offline creation</h2>
+<h2 id="table-creation-options">Table creation options</h2>
 
-<p>Tables can now be created with splits offline.  This frees up online resources to perform other critical operations.
-See <a href="https://github.com/apache/accumulo/issues/573">#573 </a>.</p>
+<p>Tables can now be created with splits, which is much faster than creating a
+table and then adding splits.  Tables can also be created in an offline state
+now.  The new bulk import API supports offline tables.  This enables the
+following method of getting a lot of data into a new table very quickly.</p>
+
+<ul>
+  <li>Create offline table with splits</li>
+  <li>Bulk import into new offline table</li>
+  <li>Bring table online</li>
+</ul>
+
+<p>See the javadoc for <a href="https://static.javadoc.io/org.apache.accumulo/accumulo-core/2.0.0/org/apache/accumulo/core/client/admin/NewTableConfiguration.html">NewTableConfiguration</a> and search for methods introduced in 2.0.0 for more information.</p>
 
 <h2 id="search-documentation">Search Documentation</h2>
 

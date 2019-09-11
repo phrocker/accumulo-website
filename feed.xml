@@ -6,8 +6,8 @@
 </description>
     <link>https://accumulo.apache.org/</link>
     <atom:link href="https://accumulo.apache.org/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Wed, 11 Sep 2019 14:28:48 -0400</pubDate>
-    <lastBuildDate>Wed, 11 Sep 2019 14:28:48 -0400</lastBuildDate>
+    <pubDate>Wed, 11 Sep 2019 15:34:41 -0400</pubDate>
+    <lastBuildDate>Wed, 11 Sep 2019 15:34:41 -0400</lastBuildDate>
     <generator>Jekyll v3.8.6</generator>
     
     
@@ -239,10 +239,20 @@ See the &lt;a href=&quot;https://static.javadoc.io/org.apache.accumulo/accumulo-
 
 &lt;p&gt;More examples for &lt;a href=&quot;https://github.com/apache/accumulo/blob/master/core/src/test/java/org/apache/accumulo/core/data/KeyBuilderTest.java&quot;&gt;Key&lt;/a&gt; and &lt;a href=&quot;https://static.javadoc.io/org.apache.accumulo/accumulo-core/2.0.0/org/apache/accumulo/core/data/Mutation.html#at()&quot;&gt;Mutation&lt;/a&gt;.&lt;/p&gt;
 
-&lt;h2 id=&quot;offline-creation&quot;&gt;Offline creation&lt;/h2&gt;
+&lt;h2 id=&quot;table-creation-options&quot;&gt;Table creation options&lt;/h2&gt;
 
-&lt;p&gt;Tables can now be created with splits offline.  This frees up online resources to perform other critical operations.
-See &lt;a href=&quot;https://github.com/apache/accumulo/issues/573&quot;&gt;#573 &lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Tables can now be created with splits, which is much faster than creating a
+table and then adding splits.  Tables can also be created in an offline state
+now.  The new bulk import API supports offline tables.  This enables the
+following method of getting a lot of data into a new table very quickly.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Create offline table with splits&lt;/li&gt;
+  &lt;li&gt;Bulk import into new offline table&lt;/li&gt;
+  &lt;li&gt;Bring table online&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;See the javadoc for &lt;a href=&quot;https://static.javadoc.io/org.apache.accumulo/accumulo-core/2.0.0/org/apache/accumulo/core/client/admin/NewTableConfiguration.html&quot;&gt;NewTableConfiguration&lt;/a&gt; and search for methods introduced in 2.0.0 for more information.&lt;/p&gt;
 
 &lt;h2 id=&quot;search-documentation&quot;&gt;Search Documentation&lt;/h2&gt;
 
