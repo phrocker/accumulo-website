@@ -187,7 +187,7 @@ Connector conn = inst.getConnector("user", "passwd");
 
 <h2 id="-writing-data"><a id="Writing_Data"></a> Writing Data</h2>
 
-<p>Data are written to Accumulo by creating Mutation objects that represent all the changes to the columns of a single row. The changes are made atomically in the TabletServer. Clients then add Mutations to a BatchWriter which submits them to the appropriate TabletServers.</p>
+<p>Data is written to Accumulo by creating Mutation objects that represent all the changes to the columns of a single row. The changes are made atomically in the TabletServer. Clients then add Mutations to a BatchWriter which submits them to the appropriate TabletServers.</p>
 
 <p>Mutations can be created thus:</p>
 

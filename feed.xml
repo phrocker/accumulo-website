@@ -6,10 +6,142 @@
 </description>
     <link>https://accumulo.apache.org/</link>
     <atom:link href="https://accumulo.apache.org/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Tue, 08 Oct 2019 17:43:33 -0400</pubDate>
-    <lastBuildDate>Tue, 08 Oct 2019 17:43:33 -0400</lastBuildDate>
+    <pubDate>Thu, 17 Oct 2019 11:08:16 -0400</pubDate>
+    <lastBuildDate>Thu, 17 Oct 2019 11:08:16 -0400</lastBuildDate>
     <generator>Jekyll v4.0.0</generator>
     
+    
+      <item>
+        <title>Using Azure Data Lake Gen2 storage as a data store for Accumulo</title>
+        <description>&lt;p&gt;Accumulo can store its files in &lt;a href=&quot;https://docs.microsoft.com/en-us/azure/storage/blobs/data-lake-storage-introduction&quot;&gt;Azure Data Lake Storage Gen2&lt;/a&gt;
+using the &lt;a href=&quot;https://docs.microsoft.com/en-us/azure/storage/blobs/data-lake-storage-abfs-driver&quot;&gt;ABFS (Azure Blob File System)&lt;/a&gt; driver.
+Similar to &lt;a href=&quot;https://accumulo.apache.org/blog/2019/09/10/accumulo-S3-notes.html&quot;&gt;S3 blog&lt;/a&gt;, 
+the write ahead logs &amp;amp; Accumulo metadata can be stored in HDFS and everything else on Gen2 storage
+using the volume chooser feature introduced in Accumulo 2.0. The configurations referred on this blog
+are specific to Accumulo 2.0 and Hadoop 3.2.0.&lt;/p&gt;
+
+&lt;h2 id=&quot;hadoop-setup&quot;&gt;Hadoop setup&lt;/h2&gt;
+
+&lt;p&gt;For ABFS client to talk to Gen2 storage, it requires one of the Authentication mechanism listed &lt;a href=&quot;https://hadoop.apache.org/docs/current/hadoop-azure/abfs.html#Authentication&quot;&gt;here&lt;/a&gt;
+This post covers &lt;a href=&quot;https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview&quot;&gt;Azure Managed Identity&lt;/a&gt;
+formerly known as Managed Service Identity or MSI. This feature provides Azure services with an 
+automatically managed identity in &lt;a href=&quot;https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/active-directory-whatis&quot;&gt;Azure AD&lt;/a&gt;
+and it avoids the need for credentials or other sensitive information from being stored in code 
+or configs/JCEKS. Plus, it comes free with Azure AD.&lt;/p&gt;
+
+&lt;p&gt;At least the following should be added to Hadoop’s &lt;code class=&quot;highlighter-rouge&quot;&gt;core-site.xml&lt;/code&gt; on each node.&lt;/p&gt;
+
+&lt;div class=&quot;language-xml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;property&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;name&amp;gt;&lt;/span&gt;fs.azure.account.auth.type&lt;span class=&quot;nt&quot;&gt;&amp;lt;/name&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;value&amp;gt;&lt;/span&gt;OAuth&lt;span class=&quot;nt&quot;&gt;&amp;lt;/value&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/property&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;property&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;name&amp;gt;&lt;/span&gt;fs.azure.account.oauth.provider.type&lt;span class=&quot;nt&quot;&gt;&amp;lt;/name&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;value&amp;gt;&lt;/span&gt;org.apache.hadoop.fs.azurebfs.oauth2.MsiTokenProvider&lt;span class=&quot;nt&quot;&gt;&amp;lt;/value&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/property&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;property&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;name&amp;gt;&lt;/span&gt;fs.azure.account.oauth2.msi.tenant&lt;span class=&quot;nt&quot;&gt;&amp;lt;/name&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;value&amp;gt;&lt;/span&gt;TenantID&lt;span class=&quot;nt&quot;&gt;&amp;lt;/value&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/property&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;property&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;name&amp;gt;&lt;/span&gt;fs.azure.account.oauth2.client.id&lt;span class=&quot;nt&quot;&gt;&amp;lt;/name&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;value&amp;gt;&lt;/span&gt;ClientID&lt;span class=&quot;nt&quot;&gt;&amp;lt;/value&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/property&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;See &lt;a href=&quot;https://hadoop.apache.org/docs/current/hadoop-azure/abfs.html&quot;&gt;ABFS doc&lt;/a&gt;
+for more information on Hadoop Azure support.&lt;/p&gt;
+
+&lt;p&gt;To get hadoop command to work with ADLS Gen2 set the 
+following entries in &lt;code class=&quot;highlighter-rouge&quot;&gt;hadoop-env.sh&lt;/code&gt;. As Gen2 storage is TLS enabled by default, 
+it is important we use the native OpenSSL implementation of TLS.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;HADOOP_OPTIONAL_TOOLS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;hadoop-azure&quot;&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;HADOOP_OPTS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;-Dorg.wildfly.openssl.path=&amp;lt;path/to/OpenSSL/libraries&amp;gt; &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;HADOOP_OPTS&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;To verify the location of the OpenSSL libraries, run &lt;code class=&quot;highlighter-rouge&quot;&gt;whereis libssl&lt;/code&gt; command 
+on the host&lt;/p&gt;
+
+&lt;h2 id=&quot;accumulo-setup&quot;&gt;Accumulo setup&lt;/h2&gt;
+
+&lt;p&gt;For each node in the cluster, modify &lt;code class=&quot;highlighter-rouge&quot;&gt;accumulo-env.sh&lt;/code&gt; to add Azure storage jars to the
+classpath.  Your versions may differ depending on your Hadoop version,
+following versions were included with Hadoop 3.2.0.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;CLASSPATH&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;conf&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;lib&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;/*:&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;HADOOP_CONF_DIR&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;ZOOKEEPER_HOME&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;/*:&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;HADOOP_HOME&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;/share/hadoop/client/*&quot;&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;CLASSPATH&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;CLASSPATH&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;HADOOP_HOME&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;/share/hadoop/tools/lib/azure-data-lake-store-sdk-2.2.9.jar&quot;&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;CLASSPATH&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;CLASSPATH&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;HADOOP_HOME&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;/share/hadoop/tools/lib/azure-keyvault-core-1.0.0.jar&quot;&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;CLASSPATH&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;CLASSPATH&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;HADOOP_HOME&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;/share/hadoop/tools/lib/hadoop-azure-3.2.0.jar&quot;&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;CLASSPATH&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;CLASSPATH&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;HADOOP_HOME&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;/share/hadoop/tools/lib/wildfly-openssl-1.0.4.Final.jar&quot;&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;CLASSPATH&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;CLASSPATH&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;HADOOP_HOME&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;/share/hadoop/common/lib/jaxb-api-2.2.11.jar&quot;&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;CLASSPATH&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;CLASSPATH&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;HADOOP_HOME&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;/share/hadoop/common/lib/jaxb-impl-2.2.3-1.jar&quot;&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;CLASSPATH&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;CLASSPATH&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;HADOOP_HOME&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;/share/hadoop/common/lib/commons-lang3-3.7.jar&quot;&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;CLASSPATH&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;CLASSPATH&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;HADOOP_HOME&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;/share/hadoop/common/lib/httpclient-4.5.2.jar&quot;&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;CLASSPATH&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;CLASSPATH&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;HADOOP_HOME&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;/share/hadoop/common/lib/jackson-core-asl-1.9.13.jar&quot;&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;CLASSPATH&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;CLASSPATH&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;HADOOP_HOME&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;/share/hadoop/common/lib/jackson-mapper-asl-1.9.13.jar&quot;&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;CLASSPATH
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Tried adding &lt;code class=&quot;highlighter-rouge&quot;&gt;-Dorg.wildfly.openssl.path&lt;/code&gt; to &lt;code class=&quot;highlighter-rouge&quot;&gt;JAVA_OPTS&lt;/code&gt; in &lt;code class=&quot;highlighter-rouge&quot;&gt;accumulo-env.sh&lt;/code&gt;, but it 
+did not appear to work, this needs further investigation.&lt;/p&gt;
+
+&lt;p&gt;Set the following in &lt;code class=&quot;highlighter-rouge&quot;&gt;accumulo.properties&lt;/code&gt; and then run &lt;code class=&quot;highlighter-rouge&quot;&gt;accumulo init&lt;/code&gt;, but don’t start Accumulo.&lt;/p&gt;
+
+&lt;div class=&quot;language-ini highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;py&quot;&gt;instance.volumes&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;hdfs://&amp;lt;name node&amp;gt;/accumulo&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;After running Accumulo init we need to configure storing write ahead logs in
+HDFS.  Set the following in &lt;code class=&quot;highlighter-rouge&quot;&gt;accumulo.properties&lt;/code&gt;.&lt;/p&gt;
+
+&lt;div class=&quot;language-ini highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;py&quot;&gt;instance.volumes&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;hdfs://&amp;lt;namenode&amp;gt;/accumulo,abfss://&amp;lt;file_system&amp;gt;@&amp;lt;storage_account_name&amp;gt;.dfs.core.windows.net/accumulo&lt;/span&gt;
+&lt;span class=&quot;py&quot;&gt;general.volume.chooser&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;org.apache.accumulo.server.fs.PreferredVolumeChooser&lt;/span&gt;
+&lt;span class=&quot;py&quot;&gt;general.custom.volume.preferred.default&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;abfss://&amp;lt;file_system&amp;gt;@&amp;lt;storage_account_name&amp;gt;.dfs.core.windows.net/accumulo&lt;/span&gt;
+&lt;span class=&quot;py&quot;&gt;general.custom.volume.preferred.logger&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;hdfs://&amp;lt;namenode&amp;gt;/accumulo&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Run &lt;code class=&quot;highlighter-rouge&quot;&gt;accumulo init --add-volumes&lt;/code&gt; to initialize the Azure DLS Gen2 volume.  Doing this
+in two steps avoids putting any Accumulo metadata files in Gen2  during init.
+Copy &lt;code class=&quot;highlighter-rouge&quot;&gt;accumulo.properties&lt;/code&gt; to all nodes and start Accumulo.&lt;/p&gt;
+
+&lt;p&gt;Individual tables can be configured to store their files in HDFS by setting the
+table property &lt;code class=&quot;highlighter-rouge&quot;&gt;table.custom.volume.preferred&lt;/code&gt;.  This should be set for the
+metadata table in case it splits using the following Accumulo shell command.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;config -t accumulo.metadata -s table.custom.volume.preferred=hdfs://&amp;lt;namenode&amp;gt;/accumulo
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;accumulo-example&quot;&gt;Accumulo example&lt;/h2&gt;
+
+&lt;p&gt;The following Accumulo shell session shows an example of writing data to Gen2 and
+reading it back.  It also shows scanning the metadata table to verify the data
+is stored in Gen2.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;root@muchos&amp;gt; createtable gen2test
+root@muchos gen2test&amp;gt; insert r1 f1 q1 v1
+root@muchos gen2test&amp;gt; insert r1 f1 q2 v2
+root@muchos gen2test&amp;gt; flush -w
+2019-10-16 08:01:00,564 [shell.Shell] INFO : Flush of table gen2test  completed.
+root@muchos gen2test&amp;gt; scan
+r1 f1:q1 []    v1
+r1 f1:q2 []    v2
+root@muchos gen2test&amp;gt; scan -t accumulo.metadata -c file
+4&amp;lt; file:abfss://&amp;lt;file_system&amp;gt;@&amp;lt;storage_account_name&amp;gt;.dfs.core.windows.net/accumulo/tables/4/default_tablet/F00000gj.rf []    234,2
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;These instructions will help to configure Accumulo to use Azure’s Data Lake Gen2 Storage along with HDFS. With this setup, 
+we are able to successfully run the continuos ingest test. Going forward, we’ll experiment more on this space 
+with ADLS Gen2 and add/update blog as we come along.&lt;/p&gt;
+
+</description>
+        <pubDate>Tue, 15 Oct 2019 00:00:00 -0400</pubDate>
+        <link>https://accumulo.apache.org/blog/2019/10/15/accumulo-adlsgen2-notes.html</link>
+        <guid isPermaLink="true">https://accumulo.apache.org/blog/2019/10/15/accumulo-adlsgen2-notes.html</guid>
+        
+        
+        <category>blog</category>
+        
+      </item>
     
       <item>
         <title>Using HDFS Erasure Coding with Accumulo</title>
@@ -1119,105 +1251,6 @@ complete in this alpha release.&lt;/li&gt;
         <pubDate>Sun, 14 Oct 2018 00:00:00 -0400</pubDate>
         <link>https://accumulo.apache.org/release/accumulo-2.0.0-alpha-1/</link>
         <guid isPermaLink="true">https://accumulo.apache.org/release/accumulo-2.0.0-alpha-1/</guid>
-        
-        
-        <category>release</category>
-        
-      </item>
-    
-      <item>
-        <title>Apache Accumulo 1.9.2</title>
-        <description>&lt;p&gt;Apache Accumulo 1.9.2 contains fixes for critical write-ahead log bugs.
-Users of any previous version of 1.8 or 1.9 are encouraged to upgrade
-immediately to avoid those issues.&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;/1.9/accumulo_user_manual.html&quot;&gt;User Manual&lt;/a&gt; - In-depth developer and administrator documentation&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;/1.9/apidocs/&quot;&gt;Javadocs&lt;/a&gt; - Accumulo 1.9 API&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;/1.9/examples/&quot;&gt;Examples&lt;/a&gt; - Code with corresponding readme files that give step by
-step instructions for running example code&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;notable-changes&quot;&gt;Notable Changes&lt;/h2&gt;
-
-&lt;h3 id=&quot;fixes-for-critical-wal-bugs-affects-versions-180-191&quot;&gt;Fixes for Critical WAL Bugs (affects versions 1.8.0-1.9.1)&lt;/h3&gt;
-
-&lt;p&gt;Multiple bugs were fixed in 1.9.2 which affects the behavior of the write-ahead
-log mechanism. These vary in significance, ranging from moderate to critical.&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/apache/accumulo/issues/537&quot;&gt;#537&lt;/a&gt; - (Critical) Since 1.8.0, a bug existed which could cause some
-write-ahead logs to be removed (garbage collected) before Accumulo was
-finished with them. These removed logs could have contained important state
-tracking information.  Without the state contained in these logs, some data
-in the remaining logs could have been replayed into a table when not needed.
-This could have reintroduced deleted data, or introduced duplicate data
-(which can interfere with combiners).&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/apache/accumulo/issues/538&quot;&gt;#538&lt;/a&gt; - (Moderate) A bug was introduced in 1.9.1 which resulted in some
-false positive IllegalStateExceptions to occur, preventing log recovery.&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/apache/accumulo/issues/539&quot;&gt;#539&lt;/a&gt; - (Moderate) Since 1.8.0, a race condition existed which could cause a log
-file which contains data to be recovered to not be recorded, thus making it
-invisible to recovery, if a tserver died within a very small window.  &lt;a href=&quot;https://github.com/apache/accumulo/issues/559&quot;&gt;#559&lt;/a&gt; 
- fixes this issue and may also fix a 1.9.1 deadlock caused by the fix for &lt;a href=&quot;https://github.com/apache/accumulo/issues/441&quot;&gt;#441&lt;/a&gt;.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Even if you primarily use bulk ingest, Accumulo’s own metadata tables can be
-affected by these bugs, causing unexpected behavior after an otherwise routine
-and recoverable server failure. As such, these bugs should be a concern to all
-users.&lt;/p&gt;
-
-&lt;h3 id=&quot;fixes-for-concurrency-bugs-gathering-table-information-affects-180-191&quot;&gt;Fixes for concurrency bugs gathering table information (affects 1.8.0-1.9.1)&lt;/h3&gt;
-
-&lt;p&gt;Bugs were found with the &lt;code class=&quot;highlighter-rouge&quot;&gt;master.status.threadpool.size&lt;/code&gt; property. If this
-property were set to a value other than &lt;code class=&quot;highlighter-rouge&quot;&gt;1&lt;/code&gt;, it could cause 100% CPU, hanging,
-or &lt;code class=&quot;highlighter-rouge&quot;&gt;ConcurrentModificationException&lt;/code&gt;s.&lt;/p&gt;
-
-&lt;p&gt;These bugs were fixed in &lt;a href=&quot;https://github.com/apache/accumulo/issues/546&quot;&gt;#546&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h3 id=&quot;caching-of-file-lengths&quot;&gt;Caching of file lengths&lt;/h3&gt;
-
-&lt;p&gt;RFiles stores metadata at the end of file. When opening a rfile Accumulo
-seeks to the end and reads metadata.  To do this seek the file length is needed. 
-Before opening a file its length is requested from the namenode.  This can
-add more load to a busy namenode.  To alleviate this, a small cache of file lengths was
-added in &lt;a href=&quot;https://github.com/apache/accumulo/issues/467&quot;&gt;#467&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h3 id=&quot;monitor-time-unit-bug&quot;&gt;Monitor time unit bug&lt;/h3&gt;
-
-&lt;p&gt;A bug was found in the monitor which displayed time durations (for example,
-those pertaining to bulk imports) in incorrect time units.&lt;/p&gt;
-
-&lt;p&gt;This bug was fixed in &lt;a href=&quot;https://github.com/apache/accumulo/issues/553&quot;&gt;#553&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h2 id=&quot;other-changes&quot;&gt;Other Changes&lt;/h2&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/apache/accumulo/issues?q=project%3Aapache%2Faccumulo%2F6&quot;&gt;GitHub&lt;/a&gt; - List of issues tracked on GitHub corresponding to this release&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;/release/accumulo-1.9.1/&quot;&gt;1.9.1 release notes&lt;/a&gt; - Release notes showing changes in the previous release&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;upgrading&quot;&gt;Upgrading&lt;/h2&gt;
-
-&lt;p&gt;View the &lt;a href=&quot;/docs/2.x/administration/upgrading&quot;&gt;Upgrading Accumulo documentation&lt;/a&gt; for guidance.&lt;/p&gt;
-
-&lt;h2 id=&quot;testing&quot;&gt;Testing&lt;/h2&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;All ITs passed with Hadoop 3.0.0 (hadoop.profile=3)&lt;/li&gt;
-  &lt;li&gt;All ITs passed with Hadoop 2.6.4 (hadoop.profile=2)&lt;/li&gt;
-  &lt;li&gt;Ran 3 continuous ingesters successfully for 24 hours on a 10 node cluster
-with agitation and pausing. Verification for all 3 tests was successful.&lt;/li&gt;
-  &lt;li&gt;Ran continuous ingest for 24 hours and verified without agitation on a 10
-node cluster.&lt;/li&gt;
-  &lt;li&gt;Tested &lt;a href=&quot;https://fluo.apache.org&quot;&gt;Apache Fluo&lt;/a&gt; build and ITs passed against this version.&lt;/li&gt;
-  &lt;li&gt;Ran a single-node cluster with &lt;a href=&quot;https://github.com/apache/fluo-uno&quot;&gt;Uno&lt;/a&gt; and created a table, ingested data,
-flushed, compacted, scanned, and deleted the table.&lt;/li&gt;
-&lt;/ul&gt;
-
-</description>
-        <pubDate>Thu, 19 Jul 2018 00:00:00 -0400</pubDate>
-        <link>https://accumulo.apache.org/release/accumulo-1.9.2/</link>
-        <guid isPermaLink="true">https://accumulo.apache.org/release/accumulo-1.9.2/</guid>
         
         
         <category>release</category>
