@@ -6,8 +6,8 @@
 </description>
     <link>https://accumulo.apache.org/</link>
     <atom:link href="https://accumulo.apache.org/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Thu, 17 Oct 2019 11:08:16 -0400</pubDate>
-    <lastBuildDate>Thu, 17 Oct 2019 11:08:16 -0400</lastBuildDate>
+    <pubDate>Tue, 22 Oct 2019 14:32:52 -0700</pubDate>
+    <lastBuildDate>Tue, 22 Oct 2019 14:32:52 -0700</lastBuildDate>
     <generator>Jekyll v4.0.0</generator>
     
     
@@ -134,7 +134,7 @@ we are able to successfully run the continuos ingest test. Going forward, we’l
 with ADLS Gen2 and add/update blog as we come along.&lt;/p&gt;
 
 </description>
-        <pubDate>Tue, 15 Oct 2019 00:00:00 -0400</pubDate>
+        <pubDate>Tue, 15 Oct 2019 00:00:00 -0700</pubDate>
         <link>https://accumulo.apache.org/blog/2019/10/15/accumulo-adlsgen2-notes.html</link>
         <guid isPermaLink="true">https://accumulo.apache.org/blog/2019/10/15/accumulo-adlsgen2-notes.html</guid>
         
@@ -458,7 +458,7 @@ to Accumulo to make working with EC a bit easier. Our initial thoughts are colle
 Accumulo dev list &lt;a href=&quot;https://lists.apache.org/thread.html/4ac5b0f664e15fa120e748892612f1e417b7dee3e1539669d179900c@%3Cdev.accumulo.apache.org%3E&quot;&gt;post&lt;/a&gt;.&lt;/p&gt;
 
 </description>
-        <pubDate>Tue, 17 Sep 2019 00:00:00 -0400</pubDate>
+        <pubDate>Tue, 17 Sep 2019 00:00:00 -0700</pubDate>
         <link>https://accumulo.apache.org/blog/2019/09/17/erasure-coding.html</link>
         <guid isPermaLink="true">https://accumulo.apache.org/blog/2019/09/17/erasure-coding.html</guid>
         
@@ -599,7 +599,7 @@ S3Gaurd.  If this is the case then only the write ahead logs would need to be
 stored in HDFS.&lt;/p&gt;
 
 </description>
-        <pubDate>Tue, 10 Sep 2019 00:00:00 -0400</pubDate>
+        <pubDate>Tue, 10 Sep 2019 00:00:00 -0700</pubDate>
         <link>https://accumulo.apache.org/blog/2019/09/10/accumulo-S3-notes.html</link>
         <guid isPermaLink="true">https://accumulo.apache.org/blog/2019/09/10/accumulo-S3-notes.html</guid>
         
@@ -740,7 +740,7 @@ to configure the cluster in a way that allows the one fast scan to be prioritize
 &lt;p&gt;Checkout some examples in the &lt;a href=&quot;/docs/2.x//administration/scan-executors&quot;&gt;user guide&lt;/a&gt;.&lt;/p&gt;
 
 </description>
-        <pubDate>Mon, 12 Aug 2019 00:00:00 -0400</pubDate>
+        <pubDate>Mon, 12 Aug 2019 00:00:00 -0700</pubDate>
         <link>https://accumulo.apache.org/blog/2019/08/12/why-upgrade.html</link>
         <guid isPermaLink="true">https://accumulo.apache.org/blog/2019/08/12/why-upgrade.html</guid>
         
@@ -948,7 +948,7 @@ at table creation time can be much faster than adding splits after creation.&lt;
 &lt;p&gt;View the &lt;a href=&quot;/docs/2.x/administration/upgrading&quot;&gt;Upgrading Accumulo documentation&lt;/a&gt; for guidance.&lt;/p&gt;
 
 </description>
-        <pubDate>Fri, 02 Aug 2019 00:00:00 -0400</pubDate>
+        <pubDate>Fri, 02 Aug 2019 00:00:00 -0700</pubDate>
         <link>https://accumulo.apache.org/release/accumulo-2.0.0/</link>
         <guid isPermaLink="true">https://accumulo.apache.org/release/accumulo-2.0.0/</guid>
         
@@ -965,7 +965,7 @@ the 2.0 Accumulo user manual. The &lt;a href=&quot;https://github.com/apache/acc
 for using Spark with Accumulo.&lt;/p&gt;
 
 </description>
-        <pubDate>Wed, 24 Apr 2019 00:00:00 -0400</pubDate>
+        <pubDate>Wed, 24 Apr 2019 00:00:00 -0700</pubDate>
         <link>https://accumulo.apache.org/blog/2019/04/24/using-spark-with-accumulo.html</link>
         <guid isPermaLink="true">https://accumulo.apache.org/blog/2019/04/24/using-spark-with-accumulo.html</guid>
         
@@ -1145,7 +1145,7 @@ address thrift CVE. Issue &lt;a href=&quot;https://github.com/apache/accumulo/is
 &lt;p&gt;View the &lt;a href=&quot;/docs/2.x/administration/upgrading&quot;&gt;Upgrading Accumulo documentation&lt;/a&gt; for guidance.&lt;/p&gt;
 
 </description>
-        <pubDate>Wed, 10 Apr 2019 00:00:00 -0400</pubDate>
+        <pubDate>Wed, 10 Apr 2019 00:00:00 -0700</pubDate>
         <link>https://accumulo.apache.org/release/accumulo-1.9.3/</link>
         <guid isPermaLink="true">https://accumulo.apache.org/release/accumulo-1.9.3/</guid>
         
@@ -1175,7 +1175,7 @@ to attendees. If you are interested in a corporate sponsorship, please feel free
 &lt;a href=&quot;mailto:elserj@apache.org&quot;&gt;Josh Elser&lt;/a&gt; for more information.&lt;/p&gt;
 
 </description>
-        <pubDate>Thu, 28 Feb 2019 00:00:00 -0500</pubDate>
+        <pubDate>Thu, 28 Feb 2019 00:00:00 -0800</pubDate>
         <link>https://accumulo.apache.org/blog/2019/02/28/nosql-day.html</link>
         <guid isPermaLink="true">https://accumulo.apache.org/blog/2019/02/28/nosql-day.html</guid>
         
@@ -1217,7 +1217,7 @@ complete in this alpha release.&lt;/li&gt;
 &lt;/ul&gt;
 
 </description>
-        <pubDate>Thu, 31 Jan 2019 00:00:00 -0500</pubDate>
+        <pubDate>Thu, 31 Jan 2019 00:00:00 -0800</pubDate>
         <link>https://accumulo.apache.org/release/accumulo-2.0.0-alpha-2/</link>
         <guid isPermaLink="true">https://accumulo.apache.org/release/accumulo-2.0.0-alpha-2/</guid>
         
@@ -1248,7 +1248,7 @@ complete in this alpha release.&lt;/li&gt;
 &lt;/ul&gt;
 
 </description>
-        <pubDate>Sun, 14 Oct 2018 00:00:00 -0400</pubDate>
+        <pubDate>Sun, 14 Oct 2018 00:00:00 -0700</pubDate>
         <link>https://accumulo.apache.org/release/accumulo-2.0.0-alpha-1/</link>
         <guid isPermaLink="true">https://accumulo.apache.org/release/accumulo-2.0.0-alpha-1/</guid>
         
