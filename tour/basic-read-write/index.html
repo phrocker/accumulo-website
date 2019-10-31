@@ -144,17 +144,16 @@
 
 <div id="tour-header">
   <h2><a href="/tour/">Accumulo Tour</a>: Writing and Reading</h2>
-  <p class="text-muted">Tour page 2 of 11</p>
+  <p class="text-muted">Tour page 3 of 12</p>
 </div>
 <div id="tour-content">
   <p>Accumulo is a big key/value store.  Writing data to Accumulo is flexible and fast.  Like any database, Accumulo stores
 data in tables and rows.  Each row in an Accumulo table can hold many key/value pairs. Our next exercise shows how to
 write and read from a table.</p>
 
-<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">static</span> <span class="kt">void</span> <span class="nf">exercise</span><span class="o">(</span><span class="nc">MiniAccumuloCluster</span> <span class="n">mac</span><span class="o">)</span> <span class="o">{</span>
-    <span class="c1">// Connect to Mini Accumulo as the root user and create a table called "GothamPD".</span>
-    <span class="nc">Connector</span> <span class="n">conn</span> <span class="o">=</span> <span class="n">mac</span><span class="o">.</span><span class="na">getConnector</span><span class="o">(</span><span class="s">"root"</span><span class="o">,</span> <span class="s">"tourguide"</span><span class="o">);</span>
-    <span class="n">conn</span><span class="o">.</span><span class="na">tableOperations</span><span class="o">().</span><span class="na">create</span><span class="o">(</span><span class="s">"GothamPD"</span><span class="o">);</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">static</span> <span class="kt">void</span> <span class="nf">exercise</span><span class="o">(</span><span class="nc">AccumuloClient</span> <span class="n">client</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">Exception</span> <span class="o">{</span>
+    <span class="c1">// create a table called "GothamPD".</span>
+    <span class="n">client</span><span class="o">.</span><span class="na">tableOperations</span><span class="o">().</span><span class="na">create</span><span class="o">(</span><span class="s">"GothamPD"</span><span class="o">);</span>
 
     <span class="c1">// Create a Mutation object to hold all changes to a row in a table.  Each row has a unique row ID.</span>
     <span class="nc">Mutation</span> <span class="n">mutation</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Mutation</span><span class="o">(</span><span class="s">"id0001"</span><span class="o">);</span>
@@ -165,12 +164,12 @@ write and read from a table.</p>
     <span class="n">mutation</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"hero"</span><span class="o">,</span><span class="s">"wearsCape?"</span><span class="o">,</span> <span class="s">"true"</span><span class="o">);</span>
 
     <span class="c1">// Create a BatchWriter to the GothamPD table and add your mutation to it. Try w/ resources will close for us.</span>
-    <span class="k">try</span> <span class="o">(</span><span class="nc">BatchWriter</span> <span class="n">writer</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="na">createBatchWriter</span><span class="o">(</span><span class="s">"GothamPD"</span><span class="o">,</span> <span class="k">new</span> <span class="nc">BatchWriterConfig</span><span class="o">()))</span> <span class="o">{</span>
+    <span class="k">try</span> <span class="o">(</span><span class="nc">BatchWriter</span> <span class="n">writer</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">createBatchWriter</span><span class="o">(</span><span class="s">"GothamPD"</span><span class="o">))</span> <span class="o">{</span>
         <span class="n">writer</span><span class="o">.</span><span class="na">addMutation</span><span class="o">(</span><span class="n">mutation</span><span class="o">);</span>
     <span class="o">}</span>
 
     <span class="c1">// Read and print all rows of the "GothamPD" table. Try w/ resources will close for us.</span>
-    <span class="k">try</span> <span class="o">(</span><span class="nc">Scanner</span> <span class="n">scan</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="na">createScanner</span><span class="o">(</span><span class="s">"GothamPD"</span><span class="o">,</span> <span class="nc">Authorizations</span><span class="o">.</span><span class="na">EMPTY</span><span class="o">))</span> <span class="o">{</span>
+    <span class="k">try</span> <span class="o">(</span><span class="nc">Scanner</span> <span class="n">scan</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">createScanner</span><span class="o">(</span><span class="s">"GothamPD"</span><span class="o">,</span> <span class="nc">Authorizations</span><span class="o">.</span><span class="na">EMPTY</span><span class="o">))</span> <span class="o">{</span>
         <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Gotham Police Department Persons of Interest:"</span><span class="o">);</span>
         <span class="c1">// A Scanner is an extension of java.lang.Iterable so behaves just like one.</span>
         <span class="k">for</span> <span class="o">(</span><span class="nc">Map</span><span class="o">.</span><span class="na">Entry</span><span class="o">&lt;</span><span class="nc">Key</span><span class="o">,</span> <span class="nc">Value</span><span class="o">&gt;</span> <span class="n">entry</span> <span class="o">:</span> <span class="n">scan</span><span class="o">)</span> <span class="o">{</span>
@@ -180,10 +179,7 @@ write and read from a table.</p>
 <span class="o">}</span>
 </code></pre></div></div>
 
-<p>Copy this code into your <code class="highlighter-rouge">exercise</code> method and run it using the command below.</p>
-
-<pre><code class="language-commandline">mvn -q clean compile exec:java
-</code></pre>
+<p>Copy this code into your <code class="highlighter-rouge">exercise</code> method then compile and run.</p>
 
 <p>Good job! That is all it takes to write and read from Accumulo.</p>
 
@@ -202,7 +198,7 @@ to read it.  More to come later in the <a href="/tour/authorizations">Authorizat
 <script>
 document.body.onkeyup = function(e){
 
-if (e.keyCode == '37') { window.location = '/tour/getting-started/'; }
+if (e.keyCode == '37') { window.location = '/tour/client/'; }
 
 
 
@@ -214,10 +210,10 @@ if (e.keyCode == '39') { window.location = '/tour/data-model/'; }
 <div class="text-center">
   <h2>
     
-    <a href="/tour/getting-started/">&lt;</a>
+    <a href="/tour/client/">&lt;</a>
     
 
-    2 / 11
+    3 / 12
     
     <a href="/tour/data-model/">&gt;</a>
     

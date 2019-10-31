@@ -25,7 +25,7 @@
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/jq-2.2.3/dt-1.10.12/datatables.min.css">
 <link href="/css/accumulo.css" rel="stylesheet" type="text/css">
 
-<title>Conditional Writer Code</title>
+<title>Connecting to Accumulo</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
@@ -137,55 +137,57 @@
         </div>
         <div id="content">
           
-          <h1 class="title">Conditional Writer Code</h1>
+          <h1 class="title">Connecting to Accumulo</h1>
           
           
 
 
 <div id="tour-header">
-  <h2><a href="/tour/">Accumulo Tour</a>: Conditional Writer Code</h2>
-  <p class="text-muted">Tour page 12 of 12</p>
+  <h2><a href="/tour/">Accumulo Tour</a>: Connecting to Accumulo</h2>
+  <p class="text-muted">Tour page 2 of 12</p>
 </div>
 <div id="tour-content">
-  <p>Below is a solution to the exercise.</p>
+  <p>Connecting to a live instance of Accumulo is done through the <a href="https://static.javadoc.io/org.apache.accumulo/accumulo-core/2.0.0/org/apache/accumulo/core/client/AccumuloClient.html">AccumuloClient</a> object.  This object contains a live connection
+to Accumulo and will remain open until closed.  All client operations can be accessed from this one object.</p>
 
-<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="kd">static</span> <span class="kt">boolean</span> <span class="nf">setAddress</span><span class="o">(</span><span class="nc">AccumuloClient</span> <span class="n">client</span><span class="o">,</span> <span class="nc">String</span> <span class="n">id</span><span class="o">,</span> <span class="nc">String</span> <span class="n">expectedAddr</span><span class="o">,</span> <span class="nc">String</span> <span class="n">newAddr</span><span class="o">)</span> <span class="o">{</span>
-    <span class="k">try</span> <span class="o">(</span><span class="nc">ConditionalWriter</span> <span class="n">writer</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">createConditionalWriter</span><span class="o">(</span><span class="s">"GothamPD"</span><span class="o">,</span> <span class="k">new</span> <span class="nc">ConditionalWriterConfig</span><span class="o">()))</span> <span class="o">{</span>
-      <span class="nc">Condition</span> <span class="n">condition</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Condition</span><span class="o">(</span><span class="s">"location"</span><span class="o">,</span> <span class="s">"home"</span><span class="o">);</span>
-      <span class="k">if</span><span class="o">(</span><span class="n">expectedAddr</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
-        <span class="n">condition</span><span class="o">.</span><span class="na">setValue</span><span class="o">(</span><span class="n">expectedAddr</span><span class="o">);</span>
-      <span class="o">}</span>
-      <span class="nc">ConditionalMutation</span> <span class="n">mutation</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ConditionalMutation</span><span class="o">(</span><span class="n">id</span><span class="o">,</span> <span class="n">condition</span><span class="o">);</span>
-      <span class="n">mutation</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"location"</span><span class="o">,</span> <span class="s">"home"</span><span class="o">,</span> <span class="n">newAddr</span><span class="o">);</span>
-      <span class="k">return</span> <span class="n">writer</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">mutation</span><span class="o">).</span><span class="na">getStatus</span><span class="o">()</span> <span class="o">==</span> <span class="nc">Status</span><span class="o">.</span><span class="na">ACCEPTED</span><span class="o">;</span>
-    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
-      <span class="k">throw</span> <span class="k">new</span> <span class="nf">RuntimeException</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
-    <span class="o">}</span>
-  <span class="o">}</span>
+<p>The <a href="https://static.javadoc.io/org.apache.accumulo/accumulo-core/2.0.0/org/apache/accumulo/core/client/Accumulo.html">Accumulo</a> entry point is used to create a client by calling <code class="highlighter-rouge">Accumulo.newClient()</code>.  The client can
+be created from properties by using one of the <code class="highlighter-rouge">from()</code> methods or using the <code class="highlighter-rouge">to()</code> and <code class="highlighter-rouge">as()</code> methods
+to specify the connection information directly.</p>
 
+<p>For the tour, the client is passed to each exercise method and then closed before stopping the cluster.
+The properties used to create the client can be seen in <code class="highlighter-rouge">accumulo-client.properties</code> under <code class="highlighter-rouge">target/mac######/conf</code>
+Notice the client can be wrapped in a Java try-with-resources since it is AutoCloseable.</p>
+
+<p>Start by using table operations to list the default tables and instance operations to get the instance ID.</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">static</span> <span class="kt">void</span> <span class="nf">exercise</span><span class="o">(</span><span class="nc">AccumuloClient</span> <span class="n">client</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">Exception</span> <span class="o">{</span>
+    <span class="k">for</span> <span class="o">(</span><span class="nc">String</span> <span class="n">t</span> <span class="o">:</span> <span class="n">client</span><span class="o">.</span><span class="na">tableOperations</span><span class="o">().</span><span class="na">list</span><span class="o">())</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Table: "</span> <span class="o">+</span> <span class="n">t</span><span class="o">);</span>
+
+    <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Instance ID: "</span> <span class="o">+</span> <span class="n">client</span><span class="o">.</span><span class="na">instanceOperations</span><span class="o">().</span><span class="na">getInstanceID</span><span class="o">());</span>
+<span class="o">}</span>
 </code></pre></div></div>
 
-<p>The following output shows running the example with a conditional writer.
-Threads retry when conditional mutations are rejected.  The final address has
-all three modifications.</p>
-
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Thread  37 attempting change '  1007 Mountain Drive, Gotham, New York  ' -&gt; '  1007 Mountain Dr, Gotham, New York  '
-Thread  38 attempting change '  1007 Mountain Drive, Gotham, New York  ' -&gt; '1007 Mountain Drive, Gotham, New York'
-Thread  39 attempting change '  1007 Mountain Drive, Gotham, New York  ' -&gt; '  1007 Mountain Drive, Gotham, NY  '
-Thread  38 attempting change '  1007 Mountain Dr, Gotham, New York  ' -&gt; '1007 Mountain Dr, Gotham, New York'
-Thread  39 attempting change '  1007 Mountain Dr, Gotham, New York  ' -&gt; '  1007 Mountain Dr, Gotham, NY  '
-Thread  39 attempting change '1007 Mountain Dr, Gotham, New York' -&gt; '1007 Mountain Dr, Gotham, NY'
-Final address : '1007 Mountain Dr, Gotham, NY'
+<p>Different types of operations are accessed by their respective method on the client:</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">client</span><span class="o">.</span><span class="na">tableOperations</span><span class="o">();</span>
+<span class="n">client</span><span class="o">.</span><span class="na">namespaceOperations</span><span class="o">();</span>
+<span class="n">client</span><span class="o">.</span><span class="na">securityOperations</span><span class="o">();</span>
+<span class="n">client</span><span class="o">.</span><span class="na">instanceOperations</span><span class="o">();</span>
+<span class="n">client</span><span class="o">.</span><span class="na">replicationOperations</span><span class="o">();</span>
 </code></pre></div></div>
+
+<p>The client is also used directly to create Scanners and perform batch operations.  These will be explored later.</p>
+
 
 </div>
 
 <script>
 document.body.onkeyup = function(e){
 
-if (e.keyCode == '37') { window.location = '/tour/conditional-writer/'; }
+if (e.keyCode == '37') { window.location = '/tour/getting-started/'; }
 
 
+
+if (e.keyCode == '39') { window.location = '/tour/basic-read-write/'; }
 
 };
 </script>
@@ -193,10 +195,12 @@ if (e.keyCode == '37') { window.location = '/tour/conditional-writer/'; }
 <div class="text-center">
   <h2>
     
-    <a href="/tour/conditional-writer/">&lt;</a>
+    <a href="/tour/getting-started/">&lt;</a>
     
 
-    12 / 12
+    2 / 12
+    
+    <a href="/tour/basic-read-write/">&gt;</a>
     
   </h2>
 </div>

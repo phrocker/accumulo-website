@@ -144,7 +144,7 @@
 
 <div id="tour-header">
   <h2><a href="/tour/">Accumulo Tour</a>: Getting Started</h2>
-  <p class="text-muted">Tour page 1 of 11</p>
+  <p class="text-muted">Tour page 1 of 12</p>
 </div>
 <div id="tour-content">
   <p>First make sure you have Java, Maven and Git installed on your machine.  Oh you are already rocking? OK let’s go!</p>
@@ -158,19 +158,19 @@ cd tour
   <li>Open <a href="https://github.com/apache/accumulo-website/blob/tour/src/main/java/tour/Main.java">Main.java</a> in your favorite editor.
     <pre><code class="language-commandline">vim ./src/main/java/tour/Main.java
 </code></pre>
-    <p>Notice the main method creates a MiniAccumuloCluster with a root password of “tourguide”.  MiniAccumuloCluster is a mini
+    <p>Notice the main method creates a <a href="https://static.javadoc.io/org.apache.accumulo/accumulo-minicluster/2.0.0/org/apache/accumulo/minicluster/MiniAccumuloCluster.html">MiniAccumuloCluster</a> with a root password of “tourpass”.  <a href="https://static.javadoc.io/org.apache.accumulo/accumulo-minicluster/2.0.0/org/apache/accumulo/minicluster/MiniAccumuloCluster.html">MiniAccumuloCluster</a> is a mini
 version of Accumulo that runs on your local filesystem.  It should only be used for development purposes but will work
-great here on the tour.  Files and logs used by MiniAccumuloCluster can be seen in the <code class="highlighter-rouge">target/mac######</code> directory.</p>
+great here on the tour.  Files and logs used by <a href="https://static.javadoc.io/org.apache.accumulo/accumulo-minicluster/2.0.0/org/apache/accumulo/minicluster/MiniAccumuloCluster.html">MiniAccumuloCluster</a> can be seen in the <code class="highlighter-rouge">target/mac######</code> directory.</p>
   </li>
   <li>Modify the <em>exercise</em> method to print a hello message. You will put your code in this method for each lesson.
-    <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">exercise</span><span class="o">(</span><span class="nc">MiniAccumuloCluster</span> <span class="n">mac</span><span class="o">)</span> <span class="o">{</span>
+    <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">exercise</span><span class="o">(</span><span class="nc">AccumuloClient</span> <span class="n">client</span><span class="o">)</span> <span class="o">{</span>
      <span class="c1">// start writing your code here</span>
      <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Hello world"</span><span class="o">);</span>
  <span class="o">}</span>
 </code></pre></div>    </div>
   </li>
-  <li>Build and run to make sure everything is cool.
-    <pre><code class="language-commandline">mvn -q clean compile exec:java
+  <li>Use the following Maven command to build and run the tour.
+    <pre><code class="language-commandline">mvn -q clean compile exec:exec
 </code></pre>
   </li>
 </ol>
@@ -183,7 +183,7 @@ document.body.onkeyup = function(e){
 
 
 
-if (e.keyCode == '39') { window.location = '/tour/basic-read-write/'; }
+if (e.keyCode == '39') { window.location = '/tour/client/'; }
 
 };
 </script>
@@ -192,9 +192,9 @@ if (e.keyCode == '39') { window.location = '/tour/basic-read-write/'; }
   <h2>
     
 
-    1 / 11
+    1 / 12
     
-    <a href="/tour/basic-read-write/">&gt;</a>
+    <a href="/tour/client/">&gt;</a>
     
   </h2>
 </div>

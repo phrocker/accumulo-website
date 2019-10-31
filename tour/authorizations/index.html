@@ -144,7 +144,7 @@
 
 <div id="tour-header">
   <h2><a href="/tour/">Accumulo Tour</a>: Authorizations</h2>
-  <p class="text-muted">Tour page 5 of 11</p>
+  <p class="text-muted">Tour page 6 of 12</p>
 </div>
 <div id="tour-content">
   <p><a href="https://static.javadoc.io/org.apache.accumulo/accumulo-core/2.0.0/org/apache/accumulo/core/security/Authorizations.html">Authorizations</a> are a set of Strings that enable a user to read protected data. Users are granted authorizations
@@ -164,16 +164,16 @@ visible to the user.</p>
 <p>We now want to secure our secret identities of the heroes so that only users with the proper authorizations can read their names.</p>
 
 <ol>
-  <li>Using the code from the previous exercise, add the following to the beginning of the <em>exercise</em> method (after we get the Connector).
+  <li>Using the code from the previous exercise, add the following to the beginning of the <em>exercise</em> method.
     <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>     <span class="c1">// Create a "secretId" authorization &amp; visibility</span>
      <span class="kd">final</span> <span class="nc">String</span> <span class="n">secretId</span> <span class="o">=</span> <span class="s">"secretId"</span><span class="o">;</span>
      <span class="nc">Authorizations</span> <span class="n">auths</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Authorizations</span><span class="o">(</span><span class="n">secretId</span><span class="o">);</span>
      <span class="nc">ColumnVisibility</span> <span class="n">colVis</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ColumnVisibility</span><span class="o">(</span><span class="n">secretId</span><span class="o">);</span>
         
      <span class="c1">// Create a user with the "secretId" authorization and grant him read permissions on our table</span>
-     <span class="n">conn</span><span class="o">.</span><span class="na">securityOperations</span><span class="o">().</span><span class="na">createLocalUser</span><span class="o">(</span><span class="s">"commissioner"</span><span class="o">,</span> <span class="k">new</span> <span class="nc">PasswordToken</span><span class="o">(</span><span class="s">"gordonrocks"</span><span class="o">));</span>
-     <span class="n">conn</span><span class="o">.</span><span class="na">securityOperations</span><span class="o">().</span><span class="na">changeUserAuthorizations</span><span class="o">(</span><span class="s">"commissioner"</span><span class="o">,</span> <span class="n">auths</span><span class="o">);</span>
-     <span class="n">conn</span><span class="o">.</span><span class="na">securityOperations</span><span class="o">().</span><span class="na">grantTablePermission</span><span class="o">(</span><span class="s">"commissioner"</span><span class="o">,</span> <span class="s">"GothamPD"</span><span class="o">,</span> <span class="nc">TablePermission</span><span class="o">.</span><span class="na">READ</span><span class="o">);</span>
+     <span class="n">client</span><span class="o">.</span><span class="na">securityOperations</span><span class="o">().</span><span class="na">createLocalUser</span><span class="o">(</span><span class="s">"commissioner"</span><span class="o">,</span> <span class="k">new</span> <span class="nc">PasswordToken</span><span class="o">(</span><span class="s">"gordonrocks"</span><span class="o">));</span>
+     <span class="n">client</span><span class="o">.</span><span class="na">securityOperations</span><span class="o">().</span><span class="na">changeUserAuthorizations</span><span class="o">(</span><span class="s">"commissioner"</span><span class="o">,</span> <span class="n">auths</span><span class="o">);</span>
+     <span class="n">client</span><span class="o">.</span><span class="na">securityOperations</span><span class="o">().</span><span class="na">grantTablePermission</span><span class="o">(</span><span class="s">"commissioner"</span><span class="o">,</span> <span class="s">"GothamPD"</span><span class="o">,</span> <span class="nc">TablePermission</span><span class="o">.</span><span class="na">READ</span><span class="o">);</span>
 </code></pre></div>    </div>
   </li>
   <li>
@@ -188,8 +188,13 @@ the Mutation API and modify the code so the <code class="highlighter-rouge">colV
       <li>This should result in an error since the root user doesn’t have the authorizations we tried to pass to the Scanner.</li>
     </ul>
   </li>
+  <li>Use the following to create a client for the “commissioner” using the <a href="https://static.javadoc.io/org.apache.accumulo/accumulo-core/2.0.0/org/apache/accumulo/core/client/Accumulo.html">Accumulo</a> entry point.
+    <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">try</span> <span class="o">(</span><span class="nc">AccumuloClient</span> <span class="n">commishClient</span> <span class="o">=</span> <span class="nc">Accumulo</span><span class="o">.</span><span class="na">newClient</span><span class="o">().</span><span class="na">from</span><span class="o">(</span><span class="n">client</span><span class="o">.</span><span class="na">properties</span><span class="o">())</span>
+ <span class="o">.</span><span class="na">as</span><span class="o">(</span><span class="s">"commissioner"</span><span class="o">,</span> <span class="s">"gordonrocks"</span><span class="o">).</span><span class="na">build</span><span class="o">();</span>
+</code></pre></div>    </div>
+  </li>
   <li>
-    <p>Get a connector for the “commissioner” and from it create a Scanner with the authorizations needed to view the secret identities.</p>
+    <p>Using the commissioner client, create a Scanner with the authorizations needed to view the secret identities.</p>
   </li>
   <li>Build and run.  You should see all the rows in the GothamPD table printed, including these secured key/value pairs:
     <pre><code class="language-commandline">Key : id0001 hero:name [secretId] 1511900180231 false         Value : Bruce Wayne
@@ -219,7 +224,7 @@ if (e.keyCode == '39') { window.location = '/tour/authorizations-code/'; }
     <a href="/tour/data-model-code/">&lt;</a>
     
 
-    5 / 11
+    6 / 12
     
     <a href="/tour/authorizations-code/">&gt;</a>
     
