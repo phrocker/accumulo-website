@@ -216,8 +216,19 @@ following versions were included with Hadoop 3.2.0.</p>
 <span class="nb">export </span>CLASSPATH
 </code></pre></div></div>
 
-<p>Tried adding <code class="highlighter-rouge">-Dorg.wildfly.openssl.path</code> to <code class="highlighter-rouge">JAVA_OPTS</code> in <code class="highlighter-rouge">accumulo-env.sh</code>, but it 
-did not appear to work, this needs further investigation.</p>
+<p>Include <code class="highlighter-rouge">-Dorg.wildfly.openssl.path</code> to <code class="highlighter-rouge">JAVA_OPTS</code> in <code class="highlighter-rouge">accumulo-env.sh</code> as shown below. This
+java property is an optional performance enhancement for TLS.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">JAVA_OPTS</span><span class="o">=(</span><span class="s2">"</span><span class="k">${</span><span class="nv">ACCUMULO_JAVA_OPTS</span><span class="p">[@]</span><span class="k">}</span><span class="s2">"</span>
+  <span class="s1">'-XX:+UseConcMarkSweepGC'</span>
+  <span class="s1">'-XX:CMSInitiatingOccupancyFraction=75'</span>
+  <span class="s1">'-XX:+CMSClassUnloadingEnabled'</span>
+  <span class="s1">'-XX:OnOutOfMemoryError=kill -9 %p'</span>
+  <span class="s1">'-XX:-OmitStackTraceInFastThrow'</span>
+  <span class="s1">'-Djava.net.preferIPv4Stack=true'</span>
+  <span class="s1">'-Dorg.wildfly.openssl.path=/usr/lib64'</span>
+  <span class="s2">"-Daccumulo.native.lib.path=</span><span class="k">${</span><span class="nv">lib</span><span class="k">}</span><span class="s2">/native"</span><span class="o">)</span>
+</code></pre></div></div>
 
 <p>Set the following in <code class="highlighter-rouge">accumulo.properties</code> and then run <code class="highlighter-rouge">accumulo init</code>, but don’t start Accumulo.</p>
 
