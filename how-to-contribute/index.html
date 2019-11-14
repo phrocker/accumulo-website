@@ -144,71 +144,18 @@
 there are other ways to contribute to Accumulo:</p>
 
 <ul>
-  <li>answer questions on <a href="/contact-us/#mailing-lists">mailing lists</a></li>
+  <li>communicate on one of the <a href="/contact-us/#mailing-lists">mailing lists</a></li>
   <li>review <a href="https://github.com/apache/accumulo/pulls">pull requests</a></li>
   <li>verify and test new <a href="/release/">releases</a></li>
   <li>update the <a href="https://github.com/apache/accumulo-website">Accumulo website and documentation</a></li>
+  <li>report bugs or triage issues</li>
 </ul>
 
-<p>Contributions are reviewed (via GitHub pull requests) by
-the community before being merged by a committer.</p>
+<p>First time developers should start with an issue labeled <a href="https://github.com/apache/accumulo/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22">good first issue</a>.</p>
 
-<p>This document provides basic instructions for contributing to Accumulo.  If you are looking for more information, check out the more comprehensive <a href="/contributors-guide/">contributor guide</a>.</p>
+<p>Any questions/ideas don’t hesitate to <a href="/contact-us/">contact us</a>.</p>
 
-<h2 id="issues">Issues</h2>
-
-<p>Accumulo uses GitHub issues to track bugs and features.  Each git repository
-has its own issues.  In GitHub pull request are issues, therefore creating an
-issue before a pull request is optional. If unsure whether to start with an
-issue or pull request, then create an issue. If you need help finding an issue
-to work on, check out the <a href="https://github.com/search?utf8=%E2%9C%93&amp;q=state%3Aopen+label%3A%22help+wanted%22+repo%3Aapache%2Faccumulo+repo%3Aapache%2Faccumulo-website+repo%3Aapache%2Faccumulo-examples+repo%3Aapache%2Faccumulo-testing&amp;type=">open issues labeled ‘helpwanted’</a> or
-<a href="/contact-us/">contact us</a>.</p>
-
-<p>Accumulo previously used <a href="https://issues.apache.org/jira/browse/ACCUMULO">JIRA</a>, but is now transitioning to GitHub issues.
-All new issues should be opened using GitHub. When working an existing JIRA
-issue, please do the following :</p>
-
-<ul>
-  <li>Open a new GitHub issue or pull request.</li>
-  <li>Link the GitHub issue to the JIRA issue.</li>
-  <li>Link the JIRA issue to the GitHub issue.</li>
-  <li>Close the JIRA issue as a duplicate.</li>
-</ul>
-
-<p>Eventually JIRA will be transitioned to a read-only state for reference.  For
-finding issues to work, there may still be 
-<a href="https://s.apache.org/newbie_accumulo_tickets">open issues labeled for newbies</a> in JIRA.</p>
-
-<h2 id="labels">Labels</h2>
-
-<p>Labels, such as <code class="highlighter-rouge">bug</code>, <code class="highlighter-rouge">enhancement</code>, and <code class="highlighter-rouge">duplicate</code>, are used to
-descriptively organize issues and pull requests. Issues labeled with <code class="highlighter-rouge">blocker</code>
-indicate that the developers have determined that the issue must be fixed prior
-to a release (to be used in conjunction with a version-specific project board;
-see the next section for information on project boards).</p>
-
-<p>Currently only Accumulo committers can set labels.  If you think a label should
-be set, comment on the issue and someone will help.</p>
-
-<h2 id="project-boards-projects">Project Boards (Projects)</h2>
-
-<p>Project boards (also “projects”) are used to track the status of issues and
-pull requests for a specific milestone. Projects with names such as <code class="highlighter-rouge">2.1.0</code>,
-and <code class="highlighter-rouge">1.9.2</code> are used for tracking issues associated with a particular release
-and release planning. These are set up as basic Kanban boards with automation,
-with <code class="highlighter-rouge">To do</code>, <code class="highlighter-rouge">In progress</code>, and <code class="highlighter-rouge">Done</code> statuses. These projects are marked as
-“closed” when the version indicated is released. Other projects may exist for
-miscellaneous puposes, such as tracking multiple issues related to a larger
-effort. These projects will be named appropriate to indicate their purpose.</p>
-
-<p>Committers manage the project boards. If you need help with a project board or
-have questions, contact the developers using the link at the top of this page.</p>
-
-<h2 id="repositories">Repositories</h2>
-
-<p>Contributions can be made to the following repositories. While the general contribution workflow is
-described below, repositories have special instructions in their <code class="highlighter-rouge">CONTRIBUTING.md</code> file which can be
-viewed by clicking on <code class="highlighter-rouge">contribute</code> in the Links column below.</p>
+<h2 id="accumulo-repositories">Accumulo Repositories</h2>
 
 <table>
   <thead>
@@ -225,38 +172,48 @@ viewed by clicking on <code class="highlighter-rouge">contribute</code> in the L
       <td>Core Project</td>
     </tr>
     <tr>
-      <td><a href="https://github.com/apache/accumulo-website">Accumulo Website</a></td>
+      <td><a href="https://github.com/apache/accumulo-website">Website</a></td>
       <td><a href="https://github.com/apache/accumulo-website/blob/master/CONTRIBUTING.md">Contribute</a> <a href="https://github.com/apache/accumulo-website/issues">Issues</a></td>
       <td>Source for this website</td>
     </tr>
     <tr>
-      <td><a href="https://github.com/apache/accumulo-examples">Accumulo Examples</a></td>
+      <td><a href="https://github.com/apache/accumulo-examples">Examples</a></td>
       <td><a href="https://github.com/apache/accumulo-examples/blob/master/CONTRIBUTING.md">Contribute</a> <a href="https://github.com/apache/accumulo-examples/issues">Issues</a></td>
-      <td>Accumulo example code</td>
+      <td>Example code</td>
     </tr>
     <tr>
-      <td><a href="https://github.com/apache/accumulo-testing">Accumulo Testing</a></td>
+      <td><a href="https://github.com/apache/accumulo-testing">Testing</a></td>
       <td><a href="https://github.com/apache/accumulo-testing/blob/master/CONTRIBUTING.md">Contribute</a> <a href="https://github.com/apache/accumulo-testing/issues">Issues</a></td>
-      <td>Accumulo test suites such as continuous ingest and random walk</td>
+      <td>Test suites such as continuous ingest and random walk</td>
     </tr>
     <tr>
-      <td><a href="https://github.com/apache/accumulo-docker">Accumulo Docker</a></td>
+      <td><a href="https://github.com/apache/accumulo-docker">Docker</a></td>
       <td><a href="https://github.com/apache/accumulo-docker/blob/master/CONTRIBUTING.md">Contribute</a> <a href="https://github.com/apache/accumulo-docker/issues">Issues</a></td>
       <td>Source for Accumulo Docker image</td>
     </tr>
     <tr>
-      <td><a href="https://github.com/apache/accumulo-wikisearch">Accumulo Wikisearch</a></td>
+      <td><a href="https://github.com/apache/accumulo-wikisearch">Wikisearch</a></td>
       <td><a href="https://github.com/apache/accumulo-wikisearch/blob/master/CONTRIBUTING.md">Contribute</a> <a href="https://github.com/apache/accumulo-wikisearch/issues">Issues</a></td>
-      <td>Accumulo example application that indexes and queries Wikipedia data</td>
+      <td>Example application that indexes and queries Wikipedia data</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/apache/accumulo-proxy">Proxy</a></td>
+      <td><a href="https://github.com/apache/accumulo-proxy/issues">Issues</a></td>
+      <td>Apache Thrift service that exposes Accumulo to other languages</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/apache/accumulo-maven-plugin">Maven plugin</a></td>
+      <td><a href="https://github.com/apache/accumulo-maven-plugin/issues">Issues</a></td>
+      <td>Maven plugin that runs Accumulo</td>
     </tr>
   </tbody>
 </table>
 
-<h2 id="contribution-workflow">Contribution workflow</h2>
+<h2 id="example-contribution-workflow">Example Contribution workflow</h2>
 
 <ol>
   <li>Create a <a href="https://github.com/join">GitHub account</a> for issues and pull requests.</li>
-  <li>Find an <a href="https://github.com/search?utf8=%E2%9C%93&amp;q=state%3Aopen+label%3A%22help+wanted%22+repo%3Aapache%2Faccumulo+repo%3Aapache%2Faccumulo-website+repo%3Aapache%2Faccumulo-examples+repo%3Aapache%2Faccumulo-testing&amp;type=">issue</a> to work on or optionally create one that describes the work that you want to do.</li>
+  <li>Find an <a href="https://github.com/apache/accumulo/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22">issue</a> to work on or optionally create one that describes the work that you want to do.</li>
   <li><a href="https://help.github.com/articles/fork-a-repo/">Fork</a> and <a href="https://help.github.com/articles/cloning-a-repository/">clone</a> the GitHub repository that you want to contribute to.</li>
   <li>Create a branch in the local clone of your fork.
     <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> git checkout -b accumulo-4321
@@ -269,7 +226,7 @@ viewed by clicking on <code class="highlighter-rouge">contribute</code> in the L
     <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> git push origin accumulo-4321
 </code></pre></div>    </div>
   </li>
-  <li>Create a <a href="https://help.github.com/articles/about-pull-requests/">Pull Request</a> on GitHub to the appropriate repository. If the work is not complete and the Pull Request is for feedback, please put <code class="highlighter-rouge">[WIP]</code> in the subject.</li>
+  <li>Create a <a href="https://help.github.com/articles/about-pull-requests/">Pull Request</a> on GitHub to the appropriate repository. A <a href="https://github.blog/2019-02-14-introducing-draft-pull-requests/">draft pull request</a> can be used if the work is not complete.</li>
   <li>At least one committer (and others in the community) will review your pull request and add any comments to your code.</li>
   <li>Push any changes from the review to the branch as new commits so the reviewer only needs to review new changes. Please avoid squashing commits after the review starts. Squashing makes it hard for the reviewer to follow the changes.</li>
   <li>Repeat this process until a reviewer approves the pull request.</li>
@@ -279,53 +236,10 @@ viewed by clicking on <code class="highlighter-rouge">contribute</code> in the L
 <h2 id="coding-guidelines">Coding Guidelines</h2>
 
 <ul>
-  <li>If a change needs to go into multiple branches of Accumulo, it should be merged into earlier branches then later branches.</li>
   <li>Accumulo follows <a href="http://semver.org/spec/v2.0.0.html">semver</a> for its <a href="/api/">public API</a>.</li>
   <li>Every file requires the ASF license header as described in <a href="https://www.apache.org/legal/src-headers">ASF Source Header</a>.</li>
-  <li>Remove all trailing whitespaces. Eclipse users can use Source→Cleanup option to accomplish this.</li>
-  <li>Use 2 space indents and never use tabs!</li>
-  <li>Use 100-column line width for Java code and Javadoc.</li>
-  <li>Use a new line with single statement if/else blocks.</li>
   <li>Do not use Author Tags. The code is developed and owned by the community.</li>
 </ul>
-
-<h2 id="code-editors">Code Editors</h2>
-
-<p>Feel free to use any editor when contributing Accumulo. If you are looking for a recommendation, many Accumulo
-developers use <a href="https://www.jetbrains.com/idea/">IntelliJ</a> or <a href="https://www.eclipse.org/">Eclipse</a>. Below are some basic instructions to help you get started.</p>
-
-<h3 id="intellij">IntelliJ</h3>
-
-<ol>
-  <li>Download and install <a href="https://www.jetbrains.com/idea/">IntelliJ</a></li>
-  <li>Clone the Accumulo repository that you want to work on.
-    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone https://github.com/apache/accumulo.git
-</code></pre></div>    </div>
-  </li>
-  <li><a href="https://www.jetbrains.com/help/idea/maven.html#maven_import_project_start">Import</a> the repository as a Maven project into IntelliJ</li>
-  <li>(Optional) Download and import <code class="highlighter-rouge">Eclipse-Accumulo-Codestyle.xml</code> from Accumulo’s <a href="https://github.com/apache/accumulo/tree/master/contrib">contrib</a> directory
-    <ul>
-      <li>Import via <code class="highlighter-rouge">File</code> &gt; <code class="highlighter-rouge">Settings</code> &gt; <code class="highlighter-rouge">Code Style</code> and clicking on cog wheel</li>
-    </ul>
-  </li>
-</ol>
-
-<h3 id="eclipse">Eclipse</h3>
-
-<ol>
-  <li>Download and install <a href="https://www.eclipse.org/">Eclipse</a>.</li>
-  <li>Clone the Accumulo repository that you want to work on.
-    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone https://github.com/apache/accumulo.git
-</code></pre></div>    </div>
-  </li>
-  <li><a href="https://stackoverflow.com/questions/2061094/importing-maven-project-into-eclipse">Import</a> the repository as a Maven project into Eclipse</li>
-  <li>(Optional) Download and import Eclipse formatting and style guides from Accumulo’s <a href="https://github.com/apache/accumulo/tree/master/contrib">contrib</a> directory
-    <ul>
-      <li>Import Formatter: <code class="highlighter-rouge">Preferences</code> &gt; <code class="highlighter-rouge">Java</code> &gt; <code class="highlighter-rouge">Code Style</code> &gt; <code class="highlighter-rouge">Formatter</code> and import the <code class="highlighter-rouge">Eclipse-Accumulo-Codestyle.xml</code> downloaded in the previous step.</li>
-      <li>Import Template: <code class="highlighter-rouge">Preferences</code> &gt; <code class="highlighter-rouge">Java</code> &gt; <code class="highlighter-rouge">Code Style</code> &gt; <code class="highlighter-rouge">Code Templates</code> and import the <code class="highlighter-rouge">Eclipse-Accumulo-Template.xml</code>. Make sure to check the “Automatically add comments” box. This template adds the ASF header and so on for new code.</li>
-    </ul>
-  </li>
-</ol>
 
 <h2 id="helpful-links">Helpful Links</h2>
 
@@ -334,7 +248,7 @@ developers use <a href="https://www.jetbrains.com/idea/">IntelliJ</a> or <a href
   <li><strong>Releases</strong> - <a href="/contributor/making-release">Making a release</a>, <a href="/contributor/verifying-release">Verifying a release</a></li>
 </ul>
 
-<p>For more details, see the <a href="/contributors-guide/">contributor guide</a>.</p>
+<p>For more information, see the <a href="/contributors-guide/">contributor guide</a>.</p>
 
 
         </div>
